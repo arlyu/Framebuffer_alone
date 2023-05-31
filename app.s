@@ -114,17 +114,24 @@ makelogs:
 
 
 //MONTAÑA
-	mov x22, 115
-	mov x23, 390
+	mov x22, 115	// Origen "x" de la parábola
+	mov x23, 390	// Origen "y" de la parábola
 	bl parabola
 
-// VER BIEN QUE REGISTRO USAR, CAMBIAR x24
-	mov x24, 22		// Ancho del borde
-loopmontaña:
-	sub x23, x23, 1
-	bl parabola
-	sub x24, x24, 1
-	cbnz x24, loopmontaña
+	movz x10, 0x11, lsl 16
+	movk x10, 0x6673, lsl 00 	// Elijo color
+
+	mov x22, 140	// Origen "x" de la cúbica
+	mov x23, 275	// Origen "y" de la cúbica
+	
+	mov x21, 20  // Ancho del rio
+ensanchario:
+	bl rio
+	add x22, x22, 1
+	sub x21, x21, 1
+	bl delay
+	cbnz x21, ensanchario
+
 
 	b InfLoop
 
@@ -191,7 +198,7 @@ drawpixel:
 
 	//set en el buffer
 	add x1,x1,x22
-	str x10,[x1,0]
+	str x10,[x1,0]		// x10 y no w10 para que deje sombreado
 
 	ldr x1,[sp]
 	ldr x23 ,[sp,8]
@@ -201,21 +208,58 @@ drawpixel:
 	br x30
 
 //
+rio:
+	
+	sub sp,sp,24
+	str lr, [sp,16]
+	str x22, [sp,8]
+	str x23, [sp,0]
 
+	mov x18, x22	// Almaceno en x18 el valor "x" del centro
+	mov x19, x23	// Almaceno en x19 el valor "y" del centro
+
+	mov x16, 39				// Longitud entera del intervalo de puntos a evaluar
+	lsl x16, x16, DENSITY	// Defino los decimales que tendrá la variable a evaluar
+	sub x4, xzr, x16		// x4 <-> Primer valor a evaluar
+
+looprio:
+	asr x17, x4, DENSITY	// x17 = "un múltiplo de x4 pensado como entero entero"
+	sub x17, xzr, x17		// Reflejo la gráfica
+	add x22, x18, x17		// Ubico el valor "x" centro en   centro_originalx + x17    
+	bl cubica
+	asr x17, x0, 14			// x17 = "un múltiplo de x4^2 pensado como entero entero"
+	add x23, x17, x19		// Ubico el valor "y" centro en   centro_originaly + x17
+	bl cartesianos			// Devuelve en x0 las coordenadas requeridas
+	stur w10, [x0]
+	add x4, x4, 1
+	cmp x4, x16
+	b.lt looprio
+
+	ldr lr, [sp,16]
+	ldr x22, [sp, 8]
+	ldr x23, [sp, 0]
+	add sp,sp,24
+
+	br lr
+
+
+
+//
 parabola:
 	// Dibuja una parabola en las coordenadas cartesianas evaluando los puntos -50, 50 
 	// Utiliza x16, x17, x18 y x19
+	// Trabaja con punto punto fijo de DENSITY decimales
 
 	sub sp,sp,24
 	str lr, [sp,16]
-	str x22,[sp,8]
-	str x23,[sp,0]
+	str x22, [sp,8]
+	str x23, [sp,0]
 
 	mov x18, x22	// Almaceno en x18 el valor "x" del centro
 	mov x19, x23	// Almaceno en x19 el valor "y" del centro
 
 	mov x16, 110				// Longitud entera del intervalo de puntos a evaluar
-	lsl x16, x16, DENSITY
+	lsl x16, x16, DENSITY		// Defino los decimales que tendrá la variable a evaluar
 	sub x4, xzr, x16		// x4 <-> Primer valor a evaluar
 
 loopparabola:
@@ -234,7 +278,7 @@ loopparabola:
 	ldr lr, [sp,16]
 	ldr x22, [sp, 8]
 	ldr x23, [sp, 0]
-	add sp,sp,16
+	add sp,sp,24
 
 	br lr
 
@@ -250,7 +294,7 @@ filldowncol:
 	str x23 ,[sp,8]
 	str x24 ,[sp,0]
 
-	sub x19, x23, 199		// Calculo la cantidad de veces que iterar hasta la altura 30
+	sub x19, x23, 198		// Calculo la cantidad de veces que iterar hasta la altura 198, requiere precisión para correcto funcionamiento
 
 loopfill:
 	bl cartesianos
@@ -266,6 +310,19 @@ loopfill:
 	ldr x23 ,[sp,8]
 	ldr x24 ,[sp,0]
 	add sp,sp,#40
+
+	br lr
+
+//
+
+cubica:
+	// Retorna en x0 el cuadrado de x4
+	// Trabaja con punto fijo de DENSITY decimales
+
+	mul x0, x4, x4
+	mul x0, x0, x4
+	asr x0, x0, DENSITY		//
+	asr x0, x0, DENSITY		// Shifts aritmético para dejar el punto en su lugar
 
 	br lr
 
@@ -359,6 +416,18 @@ endRectangle:
 	ldr x24 ,[sp,32]
 	add sp,sp,#40
 	br x30
+
+delay:
+	sub sp, sp, 8
+	str x1, [sp, 0]
+
+	movz x1, 0x2f, lsl 16
+
+delayloop:
+	sub x1, x1, 1
+	cbnz x1, delayloop
+
+	br lr 
 
 	//---------------------------------------------------------------
 	// Infinite Loop
