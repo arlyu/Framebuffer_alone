@@ -119,7 +119,7 @@ makelogs:
 	bl parabola
 
 // VER BIEN QUE REGISTRO USAR, CAMBIAR x24
-	mov x24, 23		// Ancho del borde
+	mov x24, 22		// Ancho del borde
 loopmontaña:
 	sub x23, x23, 1
 	bl parabola
