@@ -144,6 +144,14 @@ makelogs:
 	mov x21, 20  // Ancho del rio
 	bl rio
 
+//CIRCULO
+	mov x10, 0
+	mov x21, 220
+	mov x22, 320
+	mov x23, 240
+
+	bl circunferencia
+
 
 	b InfLoop
 

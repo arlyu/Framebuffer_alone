@@ -48,6 +48,8 @@ loopparabola:
 
 	br lr
 
+//
+
 cubica:
 	// Retorna en x0 el cubo de x4
 	// Trabaja con punto fijo de DENSITY decimales
@@ -59,6 +61,8 @@ cubica:
 
 	br lr
 
+//
+
 cuadratica:
 	// Retorna en x0 el cuadrado de x4
 	// Trabaja con punto fijo de DENSITY decimales
@@ -68,6 +72,128 @@ cuadratica:
 	sub x0, xzr, x0
 
 	br lr
+
+//
+
+circunferencia:
+	// Dibuja una circunferencia de color w10, con centro cartesiano (x22, x23) y radio x21
+	// Utiliza a x4 y a x9 sin guardarlos
+
+	sub sp,sp,24
+	str lr, [sp,16]
+	str x22, [sp,8]
+	str x23, [sp,0]
+
+	mov x22, 0
+	mov x23, x21  		// Punto "y" inicial
+	bl cartesianos
+	stur w10, [x0]
+	mul x4, x22, x22
+	mul x9, x23, x23
+	add x4, x4, x9
+	mul x9, x21, x21
+	sub x4, x4, x9
+
+loopCirc:
+	cmp x22, x23
+	b.ge endCirc
+	add x22, x22, 1			// x22 = "xk+1"
+	cmp x4, 0
+	b.ge circCase2
+	
+	bl error1				// Caso 1
+	mov x4, x0
+	bl cartesianos
+	stur w10, [x0]
+	bl reflex
+	stur w10, [x0]
+
+	b loopCirc
+circCase2:					// Caso 2
+	sub x23, x23, 1
+	bl error2
+	mov x4, x0
+	bl cartesianos
+	stur w10, [x0]
+	bl reflex
+	stur w10, [x0]
+	b loopCirc
+
+endCirc:
+
+	ldr lr, [sp,16]
+	ldr x22, [sp, 8]
+	ldr x23, [sp, 0]
+	add sp,sp,24
+
+	br lr
+//
+
+error1:
+	// Retorna en x0 el error ek+1=ek+2(x22)+1
+	// PRE: ek <-> x4
+
+	sub sp,sp,24
+	str lr, [sp,16]
+	str x22, [sp,8]
+	str x23, [sp,0]
+
+	lsl x22, x22, 1
+	add x22, x22, 1
+	add x0, x22, x4
+
+	ldr lr, [sp,16]
+	ldr x22, [sp, 8]
+	ldr x23, [sp, 0]
+	add sp,sp,24
+
+	br lr
+//
+error2:
+	// Retorna en x0 el error ek+1=ek+2(x22)+1-2(x23)
+	// PRE: ek <-> x4
+
+	sub sp,sp,24
+	str lr, [sp,16]
+	str x22, [sp,8]
+	str x23, [sp,0]
+
+	lsl x22, x22, 1
+	add x22, x22, 1
+	add x0, x22, x4		// x0 = ek+2(x22)+1
+
+	lsl x23, x23, 1
+	sub x0, x0, x23
+
+	ldr lr, [sp,16]
+	ldr x22, [sp, 8]
+	ldr x23, [sp, 0]
+	add sp,sp,24
+
+	br lr
+
+//
+
+reflex:
+	// Retorna en x0 la coordenada cartesiana (x23, x22) (al revés de lo habitual)
+	// Utiliza x9 sin guardarlo
+	sub sp,sp,24
+	str lr, [sp,16]
+	str x22, [sp,8]
+	str x23, [sp,0]
+
+	mov x9, x22
+	mov x22, x23
+	mov x23, x9
+	bl cartesianos
+
+	ldr lr, [sp,16]
+	ldr x22, [sp, 8]
+	ldr x23, [sp, 0]
+	add sp,sp,24
+
+	br lr
+//
 
 cartesianos:	
 	// Retorna en x0 la dirección del framebuffer asociada a la coordenada cartesiana (!=MATRICIAL) (x22, x23)
@@ -92,7 +218,6 @@ drawpixel:
 	//lo pinta en el frame buffer
 	//Se usa x1 como variable auxiliar
 	sub sp ,sp ,24
-
 	str x22 ,[sp,16]
 	str x23 ,[sp,8]
 	str x1 ,[sp]
@@ -113,6 +238,8 @@ drawpixel:
 	add sp,sp,24
 
 	br x30
+
+//
 
 rio:
 	// Dibuja una forma de rio a partir de una función cúbica centrada en (x22, x23), hasta la altura x24
