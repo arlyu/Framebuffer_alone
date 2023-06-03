@@ -115,7 +115,7 @@ drawpixel:
 	br x30
 
 rio:
-	// Dibuja un rio a partir de una función cúbica centrada en (x22, x23)
+	// Dibuja una forma de rio a partir de una función cúbica centrada en (x22, x23), hasta la altura x24
 	// Utiliza (SIN GUARDAR) los registros x16, x17, x18 y x19
 	sub sp,sp,24
 	str lr, [sp,16]
@@ -137,12 +137,15 @@ looprio:
 	asr x17, x0, 14			// x17 = "un múltiplo de x4^2 pensado como entero entero"
 	add x23, x17, x19		// Ubico el valor "y" centro en   centro_originaly + x17
 	bl cartesianos			// Devuelve en x0 las coordenadas requeridas
+	cmp x23, x24
+	b.lt termina			// Si x23 (la altura actual) es más baja que x24 deja de dibujar
 	stur w10, [x0]
-	//bl delay				// Delay para generar efecto
+	bl delay				// Delay para generar efecto
 	bl LineR				// Ensancha el rio
 	sub x4, x4, 1
 	adds xzr, x4, x16		// Verifico si x4 es el opuesto de x16
 	b.ne looprio			// b.ne "==" true sii la flag "Z == 0" (si la suma anterior no es 0 continua)
+termina:
 
 	ldr lr, [sp,16]
 	ldr x22, [sp, 8]

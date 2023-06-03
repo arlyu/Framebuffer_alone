@@ -125,19 +125,21 @@ makelogs:
 
 
 //BORDE DEL RIO
+	mov x24, 200
 	movz x10, 0x2a, lsl 16
 	movk x10, 0x2809, lsl 00 	// Elijo color	
-	mov x22, 138	// Origen "x" de la cúbica
-	mov x23, 270	// Origen "y" de la cúbica
+	mov x22, 142	// Origen "x" de la cúbica
+	mov x23, 273	// Origen "y" de la cúbica
 
-	mov x21, 22
+	mov x21, 25
 	bl rio
 
 //RIO DE LA MONTAÑA
+	mov x24, 40
 	movz x10, 0x11, lsl 16
 	movk x10, 0x6673, lsl 00 	// Elijo color
-	mov x22, 140	// Origen "x" de la cúbica
-	mov x23, 275	// Origen "y" de la cúbica
+	mov x22, 146	// Origen "x" de la cúbica
+	mov x23, 272	// Origen "y" de la cúbica
 	
 	mov x21, 20  // Ancho del rio
 	bl rio
