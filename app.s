@@ -242,18 +242,18 @@ looprio:
 
 	br lr
 
-
-
 //
 parabola:
 	// Dibuja una parabola en las coordenadas cartesianas evaluando los puntos -50, 50 
 	// Utiliza x16, x17, x18 y x19
 	// Trabaja con punto punto fijo de DENSITY decimales
 
-	sub sp,sp,24
+	sub sp,sp,32
+	str x21, [sp, 24]
 	str lr, [sp,16]
 	str x22, [sp,8]
 	str x23, [sp,0]
+	
 
 	mov x18, x22	// Almaceno en x18 el valor "x" del centro
 	mov x19, x23	// Almaceno en x19 el valor "y" del centro
@@ -270,11 +270,13 @@ loopparabola:
 	add x23, x17, x19		// Ubico el valor "y" centro en   centro_originaly + x17
 	bl cartesianos
 	stur w10, [x0]
-	bl filldowncol
+	mov x21, 198			// Decido la altura hasta la que llegara la parabola
+	bl filldownto
 	add x4, x4, 1
 	cmp x4, x16
 	b.lt loopparabola
 
+	ldr x21, [sp, 24]
 	ldr lr, [sp,16]
 	ldr x22, [sp, 8]
 	ldr x23, [sp, 0]
@@ -284,25 +286,25 @@ loopparabola:
 
 //
 
-filldowncol:
-	// Rellena los píxeles desde la coordenada cartesiana (x22, x23) hasta la altura 30, con el color de w10
+filldownto:
+	// Rellena los píxeles desde la coordenada cartesiana (x22, x23) hasta la altura x21, con el color de w10
 
-	sub sp,sp,#40
+	sub sp, sp, #40
 	str lr ,[sp, 32]
 	str x19 ,[sp,24]
 	str x22 ,[sp,16]
 	str x23 ,[sp,8]
 	str x24 ,[sp,0]
 
-	sub x19, x23, 198		// Calculo la cantidad de veces que iterar hasta la altura 198, requiere precisión para correcto funcionamiento
+	sub x19, x23, x21		// Calculo la cantidad de veces que iterar hasta la altura x21, requiere precisión para correcto funcionamiento
 
-loopfill:
 	bl cartesianos
-	sub x23, x23, 1
+loopfilldownto:
+	//sub x23, x23, 1
 	stur w10, [x0]
 	sub x19, x19, 1
-	cbnz x19, loopfill
-
+	add x0, x0, SCREEN_WIDTH
+	cbnz x19, loopfilldownto
 
 	ldr lr ,[sp, 32]
 	ldr x19 ,[sp,24]
@@ -314,7 +316,12 @@ loopfill:
 	br lr
 
 //
+filldown:
+	// Rellena x21 píxeles desde la coordenada (x22, x23) hacia abajo
 
+	
+
+//
 cubica:
 	// Retorna en x0 el cuadrado de x4
 	// Trabaja con punto fijo de DENSITY decimales
