@@ -77,22 +77,25 @@ cuadratica:
 
 circunferencia:
 	// Dibuja una circunferencia de color w10, con centro cartesiano (x22, x23) y radio x21
-	// Utiliza a x4 y a x9 sin guardarlos
+	// Utiliza a x1, x2, x4 y x9 sin guardarlos
 
 	sub sp,sp,24
 	str lr, [sp,16]
 	str x22, [sp,8]
 	str x23, [sp,0]
 
-	mov x22, 0
-	mov x23, x21  		// Punto "y" inicial
+	mov x1, x22
+	mov x2, x23
 	bl cartesianos
 	stur w10, [x0]
+	
+	mov x22, 0
+	mov x23, x21  		// Punto "y" inicial
 	mul x4, x22, x22
 	mul x9, x23, x23
 	add x4, x4, x9
 	mul x9, x21, x21
-	sub x4, x4, x9
+	sub x4, x4, x9		// x4 = e0
 
 loopCirc:
 	cmp x22, x23
@@ -103,20 +106,13 @@ loopCirc:
 	
 	bl error1				// Caso 1
 	mov x4, x0
-	bl cartesianos
-	stur w10, [x0]
-	bl reflex
-	stur w10, [x0]
-
+	bl circExt
 	b loopCirc
 circCase2:					// Caso 2
 	sub x23, x23, 1
 	bl error2
 	mov x4, x0
-	bl cartesianos
-	stur w10, [x0]
-	bl reflex
-	stur w10, [x0]
+	bl circExt
 	b loopCirc
 
 endCirc:
@@ -129,6 +125,79 @@ endCirc:
 	br lr
 //
 
+circExt:
+	// Grafica los puntos de la circunferencia, en la posición adecuada
+	// Utiliza (lo guarda) x4. Utiliza x16 y x17 sin guardar
+
+	sub sp,sp,32
+	str x4, [sp, 24]
+	str lr, [sp,16]
+	str x22, [sp,8]
+	str x23, [sp,0]
+
+	mov x16, x22
+	mov x17, x23
+
+	mov x4, 0b0
+loopCircExt1:
+	mov x22, x16
+	mov x23, x17
+	cmp x4, 0b100
+	b.ge endCircExt1
+	bl setSign
+	add x22, x22, x1
+	add x23, x23, x2
+	bl cartesianos
+	stur w10, [x0]
+	sub x22, x22, x1	// Revierto los pasos
+	sub x23, x23, x2
+	add x4, x4, 1
+	b loopCircExt1
+endCircExt1:
+
+	mov x4, 0b0
+loopCircExt2:
+	mov x22, x17
+	mov x23, x16
+	cmp x4, 0b100
+	b.ge endCircExt2
+	bl setSign
+	add x22, x22, x1
+	add x23, x23, x2
+	bl cartesianos
+	stur w10, [x0]
+	sub x22, x22, x1	// Revierto los pasos
+	sub x23, x23, x2
+	add x4, x4, 1
+	b loopCircExt2
+endCircExt2:
+
+
+
+	ldr x4, [sp, 24]
+	ldr lr, [sp,16]
+	ldr x22, [sp, 8]
+	ldr x23, [sp, 0]
+	add sp,sp,32
+
+	br lr
+//
+
+setSign:
+	// Modifica el signo de x22 y x23 dependiendo del valor de x4. 
+	// Utiliza, sin guardar, x9. CUIDADO EN EL LLAMADO DE circunferencia
+
+	and x9, x4, 0b01
+	cbz x9, noChangex22
+	sub x22, xzr, x22
+noChangex22:
+	and x9, x4, 0b10
+	cbz x9, noChangex23
+	sub x23, xzr, x23
+noChangex23:
+
+	br lr
+//
 error1:
 	// Retorna en x0 el error ek+1=ek+2(x22)+1
 	// PRE: ek <-> x4
@@ -267,7 +336,7 @@ looprio:
 	cmp x23, x24
 	b.lt termina			// Si x23 (la altura actual) es más baja que x24 deja de dibujar
 	stur w10, [x0]
-	bl delay				// Delay para generar efecto
+	//bl delay				// Delay para generar efecto
 	bl LineR				// Ensancha el rio
 	sub x4, x4, 1
 	adds xzr, x4, x16		// Verifico si x4 es el opuesto de x16
