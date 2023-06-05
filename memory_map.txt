@@ -1,63 +1,64 @@
 
-Configuración de la Memoria
+Memory Configuration
 
-Nombre           Origen             Longitud           Atributos
+Name             Origin             Length             Attributes
 *default*        0x0000000000000000 0xffffffffffffffff
 
-Guión del enlazador y mapa de memoria
+Linker script and memory map
 
 LOAD app.o
 LOAD figures.o
 LOAD start.o
                 0x0000000000080000                . = 0x80000
 
-.text           0x0000000000080000    0x90b90
+.text           0x0000000000080000    0x90d24
  *(.text.boot)
  .text.boot     0x0000000000080000    0x100c8 start.o
                 0x0000000000080000                _start
  *(.text*)
- .text          0x00000000000900c8      0x62c app.o
-                0x0000000000090564                main
- .text          0x00000000000906f4      0x49c figures.o
- .text          0x0000000000090b90    0x80000 start.o
+ .text          0x00000000000900c8      0x6ec app.o
+                0x0000000000090638                main
+ .text          0x00000000000907b4      0x570 figures.o
+ .text          0x0000000000090d24    0x80000 start.o
 
-.iplt           0x0000000000110b90        0x0
- .iplt          0x0000000000110b90        0x0 start.o
+.iplt           0x0000000000110d24        0x0
+ .iplt          0x0000000000110d24        0x0 start.o
 
-.rela.dyn       0x0000000000110b90        0x0
- .rela.iplt     0x0000000000110b90        0x0 start.o
+.rela.dyn       0x0000000000110d28        0x0
+ .rela.iplt     0x0000000000110d28        0x0 start.o
  .rela.text.boot
-                0x0000000000110b90        0x0 start.o
+                0x0000000000110d28        0x0 start.o
 
-.data           0x0000000000110b90        0x0
- .data          0x0000000000110b90        0x0 app.o
- .data          0x0000000000110b90        0x0 figures.o
- .data          0x0000000000110b90        0x0 start.o
+.data           0x0000000000110d24        0x0
+ .data          0x0000000000110d24        0x0 app.o
+ .data          0x0000000000110d24        0x0 figures.o
+ .data          0x0000000000110d24        0x0 start.o
 
-.igot.plt       0x0000000000110b90        0x0
- .igot.plt      0x0000000000110b90        0x0 start.o
+.igot.plt       0x0000000000110d28        0x0
+ .igot.plt      0x0000000000110d28        0x0 start.o
 
-.bss            0x0000000000110b90        0x0
+.bss            0x0000000000110d24        0x0
  *(.bss*)
- .bss           0x0000000000110b90        0x0 app.o
- .bss           0x0000000000110b90        0x0 figures.o
- .bss           0x0000000000110b90        0x0 start.o
+ .bss           0x0000000000110d24        0x0 app.o
+ .bss           0x0000000000110d24        0x0 figures.o
+ .bss           0x0000000000110d24        0x0 start.o
 
-.bss            0x0000000000110b90        0x0
-                0x0000000000110b90                . = ALIGN (0x10)
-                0x0000000000110b90                __bss_start = .
+.bss            0x0000000000110d24        0xc
+                0x0000000000110d30                . = ALIGN (0x10)
+ *fill*         0x0000000000110d24        0xc 
+                0x0000000000110d30                __bss_start = .
  *(.bss .bss.*)
  *(COMMON)
-                0x0000000000110b90                __bss_end = .
-                0x0000000000110b90                _end = .
+                0x0000000000110d30                __bss_end = .
+                0x0000000000110d30                _end = .
                 0x0000000000000000                __bss_size = ((__bss_end - __bss_start) >> 0x3)
 OUTPUT(kernel8.elf elf64-littleaarch64)
 LOAD linker stubs
 
-.debug_line     0x0000000000000000      0x393
- .debug_line    0x0000000000000000      0x1d9 app.o
- .debug_line    0x00000000000001d9      0x167 figures.o
- .debug_line    0x0000000000000340       0x53 start.o
+.debug_line     0x0000000000000000      0x3f8
+ .debug_line    0x0000000000000000      0x209 app.o
+ .debug_line    0x0000000000000209      0x19c figures.o
+ .debug_line    0x00000000000003a5       0x53 start.o
 
 .debug_info     0x0000000000000000       0x8a
  .debug_info    0x0000000000000000       0x2e app.o
@@ -77,8 +78,8 @@ LOAD linker stubs
  .debug_aranges
                 0x0000000000000060       0x30 start.o
 
-.debug_str      0x0000000000000000       0x71
- .debug_str     0x0000000000000000       0x69 app.o
- .debug_str     0x0000000000000069       0x69 figures.o
- .debug_str     0x0000000000000069        0x8 start.o
-                                         0x67 (tamaño antes de la relajación)
+.debug_str      0x0000000000000000       0x5d
+ .debug_str     0x0000000000000000       0x55 app.o
+ .debug_str     0x0000000000000055       0x55 figures.o
+ .debug_str     0x0000000000000055        0x8 start.o
+                                         0x53 (size before relaxing)

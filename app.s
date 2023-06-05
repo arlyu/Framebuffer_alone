@@ -150,15 +150,7 @@ makelogs:
 	mov x22, 320
 	mov x23, 240
 
-loopCirculo:
-	bl circunferencia
-	bl delay
-	sub x21, x21, 1
-	add x22, x22, 1
-	sub x21, x21, 1
-	cbnz x21, loopCirculo
-
-
+	bl circulo
 
 	b InfLoop
 

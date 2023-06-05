@@ -72,7 +72,63 @@ cuadratica:
 	sub x0, xzr, x0
 
 	br lr
+//
+circulo:
+	// Dibuja un círculo de radio x21 con centro en las coordenadas cartesianas (x22, x23)
+	// Utiliza x1, x2, x16 y x17 sin guardarlos
 
+	sub sp,sp,24
+	str lr, [sp,16]
+	str x22, [sp,8]
+	str x23, [sp,0]
+
+	mov x1, x22
+	mov x2, x23
+
+	sub x22, xzr, x21
+	sub x23, xzr, x21
+
+loopCirculo0:
+	cmp x22, x21
+	b.gt loopCirculo1
+	bl error0
+	cmp x0, 0
+	b.gt skipCirculo
+	bl puntoRelativo
+skipCirculo:
+	add x22, x22, 1
+	b loopCirculo0
+loopCirculo1:
+	sub x22, xzr, x21
+	add x23, x23, 1
+	cmp x23, x21
+	b.lt loopCirculo0
+
+	ldr lr, [sp,16]
+	ldr x22, [sp, 8]
+	ldr x23, [sp, 0]
+	add sp,sp,24
+
+	br lr
+//
+puntoRelativo:
+	// Dibuja el punto relativo al centro (x1, x2) de las coordenadas (x22, x23)
+	sub sp,sp,24
+	str lr, [sp,16]
+	str x22, [sp,8]
+	str x23, [sp,0]	
+
+	add x22, x22, x1
+	add x23, x23, x2
+	bl cartesianos
+	stur w10, [x0]
+
+	ldr lr, [sp,16]
+	ldr x22, [sp, 8]
+	ldr x23, [sp, 0]
+	add sp,sp,24
+
+	br lr
 //
 
 circunferencia:
@@ -133,6 +189,7 @@ endCirc:
 circExt:
 	// Extiende el punto (x22, x23) a los demás octantes de la circunferencia, en la posición adecuada.
 	// Utiliza (lo guarda) x4. Utiliza x16 y x17 sin guardar
+	// Supone que (x1, x2) es el centro de la circunferencia
 
 	sub sp,sp,32
 	str x4, [sp, 24]
@@ -190,7 +247,27 @@ noSwap:
 
 	br lr
 //
+error0:
+	// Retorna en x0 el error total e = x22^2+x23^2-x21^2
+	sub sp,sp,24
+	str lr, [sp,16]
+	str x22, [sp,8]
+	str x23, [sp,0]
 
+	mul x22, x22, x22
+	lsl x22, x22, 1
+	mul x23, x23, x23
+	add x22, x22, x23
+	mul x23, x21, x21
+	sub x0, x22, x23
+
+	ldr lr, [sp,16]
+	ldr x22, [sp, 8]
+	ldr x23, [sp, 0]
+	add sp,sp,24
+
+	br lr
+//
 error1:
 	// Retorna en x0 el error ek+1=ek+2(x22)+1
 	// PRE: ek <-> x4
@@ -491,7 +568,7 @@ delay:
 	str x1, [sp, 0]
 
 
-	movz x1, 0x5f, lsl 16
+	movz x1, 0x01, lsl 16
 
 delayloop:
 	sub x1, x1, 1
