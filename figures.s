@@ -86,29 +86,34 @@ circunferencia:
 
 	mov x1, x22
 	mov x2, x23
+
+	add x23, x23, x21
+	sub x23, x23, 1		// Encaja mejor
 	bl cartesianos
-	stur w10, [x0]
+	stur w10, [x0]			// Grafica el primer punto
 	
 	mov x22, 0
 	mov x23, x21  		// Punto "y" inicial
+	sub x23, x23, 1		// Encaja mejor
+	bl circExt			// Grafica puntos de cierre (izquierda, arriba, derecha y abajo)
 	mul x4, x22, x22
 	mul x9, x23, x23
 	add x4, x4, x9
 	mul x9, x21, x21
-	sub x4, x4, x9		// x4 = e0
+	sub x4, x4, x9		// x4 = e0 (Error inicial)
 
 loopCirc:
 	cmp x22, x23
 	b.ge endCirc
 	add x22, x22, 1			// x22 = "xk+1"
 	cmp x4, 0
-	b.ge circCase2
+	b.ge circCase2			// Verifica si "se está dentro o fuera de la circunferencia real"
 	
-	bl error1				// Caso 1
+	bl error1				// Caso 1. Se desplaza solo el eje x
 	mov x4, x0
 	bl circExt
 	b loopCirc
-circCase2:					// Caso 2
+circCase2:					// Caso 2. Se desplaza también el eje y
 	sub x23, x23, 1
 	bl error2
 	mov x4, x0
@@ -126,7 +131,7 @@ endCirc:
 //
 
 circExt:
-	// Grafica los puntos de la circunferencia, en la posición adecuada
+	// Extiende el punto (x22, x23) a los demás octantes de la circunferencia, en la posición adecuada.
 	// Utiliza (lo guarda) x4. Utiliza x16 y x17 sin guardar
 
 	sub sp,sp,32
@@ -142,37 +147,16 @@ circExt:
 loopCircExt1:
 	mov x22, x16
 	mov x23, x17
-	cmp x4, 0b100
+	cmp x4, 0b1000
 	b.ge endCircExt1
-	bl setSign
+	bl setOctant			// Determina el signo que tendrá la suma y el orden de las coordenadas
 	add x22, x22, x1
 	add x23, x23, x2
 	bl cartesianos
 	stur w10, [x0]
-	sub x22, x22, x1	// Revierto los pasos
-	sub x23, x23, x2
 	add x4, x4, 1
 	b loopCircExt1
 endCircExt1:
-
-	mov x4, 0b0
-loopCircExt2:
-	mov x22, x17
-	mov x23, x16
-	cmp x4, 0b100
-	b.ge endCircExt2
-	bl setSign
-	add x22, x22, x1
-	add x23, x23, x2
-	bl cartesianos
-	stur w10, [x0]
-	sub x22, x22, x1	// Revierto los pasos
-	sub x23, x23, x2
-	add x4, x4, 1
-	b loopCircExt2
-endCircExt2:
-
-
 
 	ldr x4, [sp, 24]
 	ldr lr, [sp,16]
@@ -183,21 +167,30 @@ endCircExt2:
 	br lr
 //
 
-setSign:
-	// Modifica el signo de x22 y x23 dependiendo del valor de x4. 
+setOctant:
+	// Modifica el signo de x22 y x23 dependiendo del valor de x4 ,y cuando x4 >= 0b100 invierte las coordenadas 
 	// Utiliza, sin guardar, x9. CUIDADO EN EL LLAMADO DE circunferencia
 
 	and x9, x4, 0b01
 	cbz x9, noChangex22
 	sub x22, xzr, x22
 noChangex22:
+
 	and x9, x4, 0b10
 	cbz x9, noChangex23
 	sub x23, xzr, x23
 noChangex23:
 
+	cmp x4, 0b100
+	b.lt noSwap
+	mov x9, x22
+	mov x22, x23
+	mov x23, x9
+noSwap:
+
 	br lr
 //
+
 error1:
 	// Retorna en x0 el error ek+1=ek+2(x22)+1
 	// PRE: ek <-> x4
@@ -318,6 +311,7 @@ rio:
 	str x22, [sp,8]
 	str x23, [sp,0]
 
+	mov x3, 0		// Setea el funcionamiento de LineH
 	mov x18, x22	// Almaceno en x18 el valor "x" del centro
 	mov x19, x23	// Almaceno en x19 el valor "y" del centro
 
@@ -337,7 +331,7 @@ looprio:
 	b.lt termina			// Si x23 (la altura actual) es más baja que x24 deja de dibujar
 	stur w10, [x0]
 	//bl delay				// Delay para generar efecto
-	bl LineR				// Ensancha el rio
+	bl LineH				// Ensancha el rio
 	sub x4, x4, 1
 	adds xzr, x4, x16		// Verifico si x4 es el opuesto de x16
 	b.ne looprio			// b.ne "==" true sii la flag "Z == 0" (si la suma anterior no es 0 continua)
@@ -349,6 +343,8 @@ termina:
 	add sp,sp,24
 
 	br lr
+
+//
 
 filldowncol:
 	// Rellena los píxeles desde la coordenada cartesiana (x22, x23) hasta la altura x24, con el color de w10
@@ -374,23 +370,30 @@ loopfill:
 
 //---------------Formas geometricas
 
-LineR:
+LineH:
 	// Dibuja una linea de ancho x21 y color x10, desde la coordenada cartesiana (x22, x23)
+	// Si x3 == 0, dibuja la linea hacia la derecha, y en caso contrario hacia la izquierda.
 
-	sub sp, sp, #16
+	sub sp, sp, #24
+	str x16, [sp, 16]
 	str lr ,[sp, 8]
 	str x21 ,[sp,0]
 
+	mov x16, 4			// Valor por defecto para sumar a x0
 	bl cartesianos
-loopLineR:
-	add x0, x0, 4
+	cbz x3, loopLineH
+	sub x16, xzr, x16
+
+loopLineH:
+	add x0, x0, x16
 	stur w10, [x0]
 	sub x21, x21, 1
-	cbnz x21, loopLineR
+	cbnz x21, loopLineH
 
+	ldr x16, [sp, 16]
 	ldr lr, [sp, 8]
 	ldr x21, [sp,0]
-	add sp, sp , #16
+	add sp, sp , #24
 
 	br lr
 //
@@ -488,7 +491,7 @@ delay:
 	str x1, [sp, 0]
 
 
-	movz x1, 0x0f, lsl 16
+	movz x1, 0x5f, lsl 16
 
 delayloop:
 	sub x1, x1, 1
