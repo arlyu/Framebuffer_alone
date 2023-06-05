@@ -134,7 +134,17 @@ makelogs:
 	mov x21, 25
 	bl rio
 
+//CIRCULO
+	movz x10, 0x01, lsl 16
+	movk x10, 0x5673, lsl 00 	// Elijo color
+	mov x21, 70
+	mov x22, 200
+	mov x23, 140
+
+	bl circulo
+
 //RIO DE LA MONTAÑA
+	mov x7, 1
 	mov x24, 40
 	movz x10, 0x11, lsl 16
 	movk x10, 0x6673, lsl 00 	// Elijo color
@@ -144,13 +154,7 @@ makelogs:
 	mov x21, 20  // Ancho del rio
 	bl rio
 
-//CIRCULO
-	mov x10, 0
-	mov x21, 110
-	mov x22, 320
-	mov x23, 240
 
-	bl circulo
 
 	b InfLoop
 

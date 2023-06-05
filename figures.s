@@ -255,8 +255,9 @@ error0:
 	str x23, [sp,0]
 
 	mul x22, x22, x22
-	lsl x22, x22, 1
+	//lsl x22, x22, 1
 	mul x23, x23, x23
+	lsl x23, x23, 2
 	add x22, x22, x23
 	mul x23, x21, x21
 	sub x0, x22, x23
@@ -407,7 +408,9 @@ looprio:
 	cmp x23, x24
 	b.lt termina			// Si x23 (la altura actual) es más baja que x24 deja de dibujar
 	stur w10, [x0]
-	//bl delay				// Delay para generar efecto
+	cbz x7, noDelayRio
+	bl delay				// Delay para generar efecto
+noDelayRio:
 	bl LineH				// Ensancha el rio
 	sub x4, x4, 1
 	adds xzr, x4, x16		// Verifico si x4 es el opuesto de x16
