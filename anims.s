@@ -1,5 +1,7 @@
+.data
+	Anim: .dword 30, 0, 0, 0, 0, 0
 	.equ DENSITY, 5
-	
+
 //DelayLoop
 .globl delay
 delay:
@@ -22,7 +24,7 @@ delayLargo:
 	sub sp, sp, 16
 	str lr, [sp, 8]
 	str x1, [sp, 0]
-	movz x1, 0xFF, lsl 16
+	movz x1, 0x1F, lsl 16
 
 delayLargoloop:
 	sub x1, x1, 1
@@ -224,10 +226,17 @@ termina:
 
 .globl moveSnail
 moveSnail:
-	sub sp, sp, 24
+	// Mueve la coordenada x del caracol (suma 1 a Anim[0])
+	// Utiliza, sin guardarlo, x14
+
+	sub sp, sp, 32
+	str x22, [sp, 24]
 	str x21, [sp, 16]
 	str x24, [sp, 8]
 	str lr, [sp, 0]
+
+	ldr x14, =Anim 				// Almaceno las coordenadas iniciales del arreglo
+	ldr x22, [x14]				// Almaceno en x22 el valor de Anim[0]
 
 	movz x10, 0x09, lsl 16		//Color base del piso
 	movk x10, 0x5516, lsl 00
@@ -241,27 +250,33 @@ moveSnail:
 	add x22, x22, 1				// Muevo la ubicacion del proximo caracol
 	bl snailAsset				// Lo grafico
 
+	str x22, [x14]
+
+	ldr x22, [sp, 24]
 	ldr x21, [sp, 16]
 	ldr x24, [sp, 8]
 	ldr lr, [sp, 0]
-	add sp, sp, 24
+	add sp, sp, 32
 
 	br lr
 
 .globl neonCube
 neonCube:
-
 	sub sp, sp, 32
 	str x7, [sp, 24]		// ""Variable"" para verificar las flags de funciones
 	str lr, [sp,16]
 	str x22, [sp,8]
 	str x23, [sp,0]
 
+	mov x22, 240
+	mov x23, 120
+
+
 	and x3, x3, 0xfe		// Setea el funcionamiento de LineH
 	mov x18, x22			// Almaceno en x18 el valor "x" del centro
 	mov x19, x23			// Almaceno en x19 el valor "y" del centro
 
-	mov x16, 25				// Longitud entera del intervalo de puntos a evaluar
+	mov x16, 50				// Longitud entera del intervalo de puntos a evaluar
 	lsl x16, x16, 0			// Defino los decimales que tendrá la variable a evaluar
 	mov x4, x16 			// x4 <-> Primer valor a evaluar
 
@@ -273,7 +288,7 @@ loopNeon:
 	cmp x23, x24
 	b.lt endNeon			// Si x23 (la altura actual) es más baja que x24 deja de dibujar
 	bl delay				// Delay para generar efecto
-	bl LineH				// Ensancha el Caida
+	bl LineD				
 	sub x4, x4, 1
 	adds xzr, x4, x16		// Verifico si x4 es el opuesto de x16
 	b.ne loopNeon			// b.ne "==" true sii la flag "Z == 0" (si la suma anterior no es 0 continua)
@@ -288,7 +303,7 @@ endNeon:
 	br lr
 
 lineal:
-	// Retorna en x23 el valor de evaluar la funcion lineal x22
-	mov x23, x22
+	// Retorna en x0 el valor de evaluar la funcion lineal x22
+	mov x0, x22
 	br lr
 
