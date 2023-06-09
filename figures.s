@@ -371,6 +371,7 @@ rio:
 	ldr x22, [sp, 16]
 	ldr x23, [sp, 8]
 	ldr x24, [sp, 0]
+	add sp, sp, 40
 
 	br lr
 

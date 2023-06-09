@@ -341,12 +341,7 @@ skipd:
 
 	// Tecla espacio
 	
-	and w11, w16, 0b00100000
-	cbz w11, skipEsp
-	mov x22, 250
-	mov x23, 120
 	//bl neonCube
-skipEsp:
 
 	b loopPrincipal
 

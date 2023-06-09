@@ -157,7 +157,7 @@ lavaColor:
 	mov x24, 40
 	mov x22, 146	// Origen "x" de la cúbica
 	mov x23, 272	// Origen "y" de la cúbica
-	mov x21, 20  // Ancho del rio
+	mov x21, 20  	// Ancho del rio
 
 	bl caida
 

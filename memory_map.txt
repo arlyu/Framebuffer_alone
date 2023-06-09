@@ -12,7 +12,7 @@ LOAD figures.o
 LOAD start.o
                 0x0000000000080000                . = 0x80000
 
-.text           0x0000000000080000    0x91124
+.text           0x0000000000080000    0x91118
  *(.text.boot)
  .text.boot     0x0000000000080000    0x100c8 start.o
                 0x0000000000080000                _start
@@ -25,82 +25,82 @@ LOAD start.o
                 0x0000000000090284                caida
                 0x0000000000090308                moveSnail
                 0x0000000000090358                neonCube
- .text          0x00000000000903d0      0x394 app.o
+ .text          0x00000000000903d0      0x384 app.o
                 0x00000000000903d0                main
                 0x00000000000903d4                init
                 0x0000000000090704                loopPrincipal
-                0x0000000000090760                InfLoop
- .text          0x0000000000090764      0x9c0 figures.o
-                0x0000000000090764                parabola
-                0x00000000000907d4                cubica
-                0x00000000000907e8                cuadratica
-                0x00000000000907f8                circulo
-                0x0000000000090860                elipse
-                0x00000000000909a4                cartesianos
-                0x00000000000909c4                drawpixel
-                0x0000000000090a00                skyFill
-                0x0000000000090a7c                rio
-                0x0000000000090acc                filldowncol
-                0x0000000000090b00                Petalos
-                0x0000000000090b4c                snailAsset
-                0x0000000000090c80                vallaStatic
-                0x0000000000090d08                cultivoStatic
-                0x0000000000090d58                cartelStatic
-                0x0000000000090dbc                tringulosrep
-                0x0000000000090df8                manzana
-                0x0000000000090e7c                espiga
-                0x0000000000090ec0                moonAsset
-                0x0000000000090f0c                ufoAsset
-                0x0000000000090f60                LineH
-                0x0000000000090fb0                LineD
-                0x0000000000090fe0                Line
-                0x0000000000091038                Rectangle
-                0x0000000000091080                triangulo
-                0x00000000000910ac                trianguloinvert
-                0x00000000000910d8                elipseCreciente
- .text          0x0000000000091124    0x80000 start.o
+                0x0000000000090750                InfLoop
+ .text          0x0000000000090754      0x9c4 figures.o
+                0x0000000000090754                parabola
+                0x00000000000907c4                cubica
+                0x00000000000907d8                cuadratica
+                0x00000000000907e8                circulo
+                0x0000000000090850                elipse
+                0x0000000000090994                cartesianos
+                0x00000000000909b4                drawpixel
+                0x00000000000909f0                skyFill
+                0x0000000000090a6c                rio
+                0x0000000000090ac0                filldowncol
+                0x0000000000090af4                Petalos
+                0x0000000000090b40                snailAsset
+                0x0000000000090c74                vallaStatic
+                0x0000000000090cfc                cultivoStatic
+                0x0000000000090d4c                cartelStatic
+                0x0000000000090db0                tringulosrep
+                0x0000000000090dec                manzana
+                0x0000000000090e70                espiga
+                0x0000000000090eb4                moonAsset
+                0x0000000000090f00                ufoAsset
+                0x0000000000090f54                LineH
+                0x0000000000090fa4                LineD
+                0x0000000000090fd4                Line
+                0x000000000009102c                Rectangle
+                0x0000000000091074                triangulo
+                0x00000000000910a0                trianguloinvert
+                0x00000000000910cc                elipseCreciente
+ .text          0x0000000000091118    0x80000 start.o
 
-.iplt           0x0000000000111124        0x0
- .iplt          0x0000000000111124        0x0 anims.o
+.iplt           0x0000000000111118        0x0
+ .iplt          0x0000000000111118        0x0 anims.o
 
-.rela.dyn       0x0000000000111128        0x0
- .rela.iplt     0x0000000000111128        0x0 anims.o
+.rela.dyn       0x0000000000111118        0x0
+ .rela.iplt     0x0000000000111118        0x0 anims.o
  .rela.text.boot
-                0x0000000000111128        0x0 anims.o
+                0x0000000000111118        0x0 anims.o
 
-.data           0x0000000000111124        0x0
- .data          0x0000000000111124        0x0 anims.o
- .data          0x0000000000111124        0x0 app.o
- .data          0x0000000000111124        0x0 figures.o
- .data          0x0000000000111124        0x0 start.o
+.data           0x0000000000111118        0x0
+ .data          0x0000000000111118        0x0 anims.o
+ .data          0x0000000000111118        0x0 app.o
+ .data          0x0000000000111118        0x0 figures.o
+ .data          0x0000000000111118        0x0 start.o
 
-.igot.plt       0x0000000000111128        0x0
- .igot.plt      0x0000000000111128        0x0 anims.o
+.igot.plt       0x0000000000111118        0x0
+ .igot.plt      0x0000000000111118        0x0 anims.o
 
-.bss            0x0000000000111124        0x0
+.bss            0x0000000000111118        0x0
  *(.bss*)
- .bss           0x0000000000111124        0x0 anims.o
- .bss           0x0000000000111124        0x0 app.o
- .bss           0x0000000000111124        0x0 figures.o
- .bss           0x0000000000111124        0x0 start.o
+ .bss           0x0000000000111118        0x0 anims.o
+ .bss           0x0000000000111118        0x0 app.o
+ .bss           0x0000000000111118        0x0 figures.o
+ .bss           0x0000000000111118        0x0 start.o
 
-.bss            0x0000000000111124        0xc
-                0x0000000000111130                . = ALIGN (0x10)
- *fill*         0x0000000000111124        0xc 
-                0x0000000000111130                __bss_start = .
+.bss            0x0000000000111118        0x8
+                0x0000000000111120                . = ALIGN (0x10)
+ *fill*         0x0000000000111118        0x8 
+                0x0000000000111120                __bss_start = .
  *(.bss .bss.*)
  *(COMMON)
-                0x0000000000111130                __bss_end = .
-                0x0000000000111130                _end = .
+                0x0000000000111120                __bss_end = .
+                0x0000000000111120                _end = .
                 0x0000000000000000                __bss_size = ((__bss_end - __bss_start) >> 0x3)
 OUTPUT(kernel8.elf elf64-littleaarch64)
 LOAD linker stubs
 
-.debug_line     0x0000000000000000      0x524
+.debug_line     0x0000000000000000      0x521
  .debug_line    0x0000000000000000       0xfc anims.o
- .debug_line    0x00000000000000fc      0x11d app.o
- .debug_line    0x0000000000000219      0x2b8 figures.o
- .debug_line    0x00000000000004d1       0x53 start.o
+ .debug_line    0x00000000000000fc      0x119 app.o
+ .debug_line    0x0000000000000215      0x2b9 figures.o
+ .debug_line    0x00000000000004ce       0x53 start.o
 
 .debug_info     0x0000000000000000       0xb8
  .debug_info    0x0000000000000000       0x2e anims.o
