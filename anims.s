@@ -1,6 +1,7 @@
 .data
 	Anim: .dword 30, 0, 0, 0, 0, 0
 	.equ DENSITY, 5
+	.equ GPIO_GPLEV0,  0x34
 
 //DelayLoop
 .globl delay
@@ -8,7 +9,7 @@ delay:
 	sub sp, sp, 16
 	str lr, [sp, 8]
 	str x1, [sp, 0]
-	movz x1, 0x06, lsl 16
+	movz x1, 0x02, lsl 16
 
 delayloop:
 	sub x1, x1, 1
@@ -260,38 +261,35 @@ moveSnail:
 
 	br lr
 
-.globl neonCube
-neonCube:
+.globl neonLine
+neonLine:
+	// Dibuja una linea psicodelica en las coordenadas cartesianas (x1, x2)
+
 	sub sp, sp, 32
 	str x7, [sp, 24]		// ""Variable"" para verificar las flags de funciones
 	str lr, [sp,16]
 	str x22, [sp,8]
 	str x23, [sp,0]
 
-	mov x22, 240
-	mov x23, 120
+	mov x22, 0
+	mov x23, 0
 
+	and x3, x3, 0xfe		// Setea el funcionamiento de LineH para que extienda hacia la derecha
+	mov x18, x1				// Almaceno en x18 el valor "x" del centro
+	mov x19, x2				// Almaceno en x19 el valor "y" del centro
 
-	and x3, x3, 0xfe		// Setea el funcionamiento de LineH
-	mov x18, x22			// Almaceno en x18 el valor "x" del centro
-	mov x19, x23			// Almaceno en x19 el valor "y" del centro
-
-	mov x16, 50				// Longitud entera del intervalo de puntos a evaluar
-	lsl x16, x16, 0			// Defino los decimales que tendrá la variable a evaluar
-	mov x4, x16 			// x4 <-> Primer valor a evaluar
+	mov x4, 0 				// x4 <-> Primer valor a evaluar
 
 loopNeon:
 	add x22, x18, x4
 	bl lineal
 	add x23, x0, x19		// Ubico el valor "y" centro en   centro_originaly + x17
-	bl cartesianos			// Devuelve en x0 las coordenadas requeridas
-	cmp x23, x24
-	b.lt endNeon			// Si x23 (la altura actual) es más baja que x24 deja de dibujar
 	bl delay				// Delay para generar efecto
-	bl LineD				
-	sub x4, x4, 1
-	adds xzr, x4, x16		// Verifico si x4 es el opuesto de x16
-	b.ne loopNeon			// b.ne "==" true sii la flag "Z == 0" (si la suma anterior no es 0 continua)
+	bl LineH
+	bl LineD
+	add x4, x4, 1
+	cmp x4, 30
+	b.le loopNeon
 endNeon:
 
 	ldr x7, [sp, 24]
@@ -302,8 +300,53 @@ endNeon:
 
 	br lr
 
+.globl neonFace
+neonFace:
+	sub sp, sp, 40
+	str x10, [sp, 24]
+	str x22, [sp,16]
+	str x23, [sp, 8]
+	str lr, [sp, 0]
+
+	mov x1, 0
+	mov x2, 0
+	mov x22, 150
+	mov x23, 120
+
+loopEscalon:
+	mov x22, 150
+	mov x23, 120
+	movz x10, 0x1f, lsl 16 
+	cmp x2, 640
+	b.le loopFace0
+	mov x2, 0
+loopFace0:
+	bl neonLine
+	add x1, x1, 1
+	sub x22, x22, 1
+	add x10, x10, 0xf
+	cbnz x22, loopFace0
+
+loopFace1:
+	bl neonLine
+	add x10, x10, 0xf
+	add x2, x2, 1
+	sub x23, x23, 1
+	cbnz x23, loopFace1
+	ldr w13, [x26, GPIO_GPLEV0]
+	and w13, w13, 0b00100000
+	cbz w13, loopEscalon
+
+	ldr x10, [sp, 24]
+	ldr x22, [sp,16]
+	ldr x23, [sp, 8]
+	ldr lr, [sp, 0]
+	add sp, sp, 40
+
+	br lr
+
 lineal:
-	// Retorna en x0 el valor de evaluar la funcion lineal x22
-	mov x0, x22
+	// Retorna en x0 el valor de evaluar la funcion lineal x4
+	mov x0, x4
 	br lr
 

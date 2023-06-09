@@ -11,12 +11,15 @@
 main:
 	// x0 contiene la direccion base del framebuffer
 	mov x20, x0 // Guarda la dirección base del framebuffer en x20
+	mov x26, GPIO_BASE	
 
 .globl init
 init:
+	bl neonFace
 	movz x24,270 //Llenar el cielo exctamente hasta donde empieza el suelo
 	bl skyFill
 
+// Introduccion
 
 //ESTRELLAS
 	movz x10, 0xFF, lsl 16 //Color blanco
@@ -81,7 +84,6 @@ fila2trigo:
 	add x22,x22,10
 	sub x4,x4,1
 	cbnz x4,fila2trigo
-
 	
 //
 //Cartel
@@ -340,7 +342,7 @@ skipd:
 	// Tecla espacio
 	and w11, w13, 0b00100000
 	cbz w11, skipEsp
-	bl neonCube
+	
 skipEsp:
 
 	b loopPrincipal

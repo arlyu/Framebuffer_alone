@@ -166,6 +166,7 @@ endElipse:
 	br lr
 //
 
+.globl puntoRelativo
 puntoRelativo:
 	// Dibuja el punto relativo al centro (x1, x2) de las coordenadas (x22, x23)
 	// Se asume la correspondencia de x1 y x2
