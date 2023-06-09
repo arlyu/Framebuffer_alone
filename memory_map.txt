@@ -6,80 +6,128 @@ Nombre           Origen             Longitud           Atributos
 
 Guión del enlazador y mapa de memoria
 
+LOAD anims.o
 LOAD app.o
 LOAD figures.o
 LOAD start.o
                 0x0000000000080000                . = 0x80000
 
-.text           0x0000000000080000    0x91604
+.text           0x0000000000080000    0x91120
  *(.text.boot)
  .text.boot     0x0000000000080000    0x100c8 start.o
                 0x0000000000080000                _start
  *(.text*)
- .text          0x00000000000900c8      0xbd4 app.o
-                0x0000000000090a30                main
- .text          0x0000000000090c9c      0x968 figures.o
- .text          0x0000000000091604    0x80000 start.o
+ .text          0x00000000000900c8      0x308 anims.o
+                0x00000000000900c8                delay
+                0x00000000000900f0                delayLargo
+                0x0000000000090114                moonAnim
+                0x000000000009020c                aguaLava
+                0x0000000000090284                caida
+                0x0000000000090308                moveSnail
+                0x0000000000090358                neonCube
+ .text          0x00000000000903d0      0x394 app.o
+                0x00000000000903d0                main
+                0x00000000000903d4                init
+                0x0000000000090704                loopPrincipal
+                0x0000000000090760                InfLoop
+ .text          0x0000000000090764      0x9bc figures.o
+                0x0000000000090764                parabola
+                0x00000000000907d4                cubica
+                0x00000000000907e8                cuadratica
+                0x00000000000907f8                circulo
+                0x0000000000090860                elipse
+                0x00000000000909a4                cartesianos
+                0x00000000000909c4                drawpixel
+                0x0000000000090a00                skyFill
+                0x0000000000090a7c                rio
+                0x0000000000090acc                filldowncol
+                0x0000000000090b00                Petalos
+                0x0000000000090b4c                snailAsset
+                0x0000000000090c80                vallaStatic
+                0x0000000000090d08                cultivoStatic
+                0x0000000000090d58                cartelStatic
+                0x0000000000090dbc                tringulosrep
+                0x0000000000090df8                manzana
+                0x0000000000090e7c                espiga
+                0x0000000000090ec0                moonAsset
+                0x0000000000090f0c                ufoAsset
+                0x0000000000090f60                LineH
+                0x0000000000090fb0                LineD
+                0x0000000000090fe0                Line
+                0x0000000000091038                Rectangle
+                0x0000000000091080                triangulo
+                0x00000000000910ac                trianguloinvert
+                0x00000000000910d8                elipseCreciente
+ .text          0x0000000000091120    0x80000 start.o
 
-.iplt           0x0000000000111604        0x0
- .iplt          0x0000000000111604        0x0 start.o
+.iplt           0x0000000000111120        0x0
+ .iplt          0x0000000000111120        0x0 anims.o
 
-.rela.dyn       0x0000000000111608        0x0
- .rela.iplt     0x0000000000111608        0x0 start.o
+.rela.dyn       0x0000000000111120        0x0
+ .rela.iplt     0x0000000000111120        0x0 anims.o
  .rela.text.boot
-                0x0000000000111608        0x0 start.o
+                0x0000000000111120        0x0 anims.o
 
-.data           0x0000000000111604        0x0
- .data          0x0000000000111604        0x0 app.o
- .data          0x0000000000111604        0x0 figures.o
- .data          0x0000000000111604        0x0 start.o
+.data           0x0000000000111120        0x0
+ .data          0x0000000000111120        0x0 anims.o
+ .data          0x0000000000111120        0x0 app.o
+ .data          0x0000000000111120        0x0 figures.o
+ .data          0x0000000000111120        0x0 start.o
 
-.igot.plt       0x0000000000111608        0x0
- .igot.plt      0x0000000000111608        0x0 start.o
+.igot.plt       0x0000000000111120        0x0
+ .igot.plt      0x0000000000111120        0x0 anims.o
 
-.bss            0x0000000000111604        0x0
+.bss            0x0000000000111120        0x0
  *(.bss*)
- .bss           0x0000000000111604        0x0 app.o
- .bss           0x0000000000111604        0x0 figures.o
- .bss           0x0000000000111604        0x0 start.o
+ .bss           0x0000000000111120        0x0 anims.o
+ .bss           0x0000000000111120        0x0 app.o
+ .bss           0x0000000000111120        0x0 figures.o
+ .bss           0x0000000000111120        0x0 start.o
 
-.bss            0x0000000000111604        0xc
-                0x0000000000111610                . = ALIGN (0x10)
- *fill*         0x0000000000111604        0xc 
-                0x0000000000111610                __bss_start = .
+.bss            0x0000000000111120        0x0
+                0x0000000000111120                . = ALIGN (0x10)
+                0x0000000000111120                __bss_start = .
  *(.bss .bss.*)
  *(COMMON)
-                0x0000000000111610                __bss_end = .
-                0x0000000000111610                _end = .
+                0x0000000000111120                __bss_end = .
+                0x0000000000111120                _end = .
                 0x0000000000000000                __bss_size = ((__bss_end - __bss_start) >> 0x3)
 OUTPUT(kernel8.elf elf64-littleaarch64)
 LOAD linker stubs
 
-.debug_line     0x0000000000000000      0x638
- .debug_line    0x0000000000000000      0x347 app.o
- .debug_line    0x0000000000000347      0x29e figures.o
- .debug_line    0x00000000000005e5       0x53 start.o
+.debug_line     0x0000000000000000      0x523
+ .debug_line    0x0000000000000000       0xfc anims.o
+ .debug_line    0x00000000000000fc      0x11d app.o
+ .debug_line    0x0000000000000219      0x2b7 figures.o
+ .debug_line    0x00000000000004d0       0x53 start.o
 
-.debug_info     0x0000000000000000       0x8a
- .debug_info    0x0000000000000000       0x2e app.o
- .debug_info    0x000000000000002e       0x2e figures.o
- .debug_info    0x000000000000005c       0x2e start.o
+.debug_info     0x0000000000000000       0xb8
+ .debug_info    0x0000000000000000       0x2e anims.o
+ .debug_info    0x000000000000002e       0x2e app.o
+ .debug_info    0x000000000000005c       0x2e figures.o
+ .debug_info    0x000000000000008a       0x2e start.o
 
-.debug_abbrev   0x0000000000000000       0x3c
- .debug_abbrev  0x0000000000000000       0x14 app.o
- .debug_abbrev  0x0000000000000014       0x14 figures.o
- .debug_abbrev  0x0000000000000028       0x14 start.o
+.debug_abbrev   0x0000000000000000       0x50
+ .debug_abbrev  0x0000000000000000       0x14 anims.o
+ .debug_abbrev  0x0000000000000014       0x14 app.o
+ .debug_abbrev  0x0000000000000028       0x14 figures.o
+ .debug_abbrev  0x000000000000003c       0x14 start.o
 
-.debug_aranges  0x0000000000000000       0x90
+.debug_aranges  0x0000000000000000       0xc0
  .debug_aranges
-                0x0000000000000000       0x30 app.o
+                0x0000000000000000       0x30 anims.o
  .debug_aranges
-                0x0000000000000030       0x30 figures.o
+                0x0000000000000030       0x30 app.o
  .debug_aranges
-                0x0000000000000060       0x30 start.o
+                0x0000000000000060       0x30 figures.o
+ .debug_aranges
+                0x0000000000000090       0x30 start.o
 
-.debug_str      0x0000000000000000       0x51
- .debug_str     0x0000000000000000       0x49 app.o
- .debug_str     0x0000000000000049       0x49 figures.o
- .debug_str     0x0000000000000049        0x8 start.o
+.debug_str      0x0000000000000000       0x5f
+ .debug_str     0x0000000000000000       0x47 anims.o
+ .debug_str     0x0000000000000047        0x6 app.o
+                                         0x45 (tamaño antes de la relajación)
+ .debug_str     0x000000000000004d        0xa figures.o
+                                         0x49 (tamaño antes de la relajación)
+ .debug_str     0x0000000000000057        0x8 start.o
                                          0x47 (tamaño antes de la relajación)
