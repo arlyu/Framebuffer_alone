@@ -159,7 +159,7 @@ fila2trigo:
 //
 //BORDE DEL RIO
 	mov x3, 0b00	// Seteo la flag de delay
-	mov x24, 200
+	mov x24, 200	// Altura hasta la que se grafica
 	movz x10, 0x2a, lsl 16
 	movk x10, 0x2809, lsl 00 	// Elijo color	
 	mov x22, 142	// Origen "x" de la cúbica
@@ -171,14 +171,14 @@ fila2trigo:
 	movz x10, 0x01, lsl 16
 	movk x10, 0x5673, lsl 00 	// Elijo color
 	mov x21, 70
-	mov x22, 200
+	mov x22, 200	
 	mov x23, 140
 	bl elipse
 //
 //RIO DE LA MONTAÑA
 rioClaro:
 	mov x3, 0b00	// Seteo la flag de delay
-	mov x24, 40
+	mov x24, 40		// Altura hasta la que se grafica
 	movz x10, 0x11, lsl 16
 	movk x10, 0x6673, lsl 00 	// Elijo color
 	mov x22, 146	// Origen "x" de la cúbica
@@ -308,10 +308,10 @@ mov x26, GPIO_BASE
 loopPrincipal:
 
 	// Lee el estado de los GPIO 0 - 31
-	ldr w16, [x26, GPIO_GPLEV0]
+	ldr w13, [x26, GPIO_GPLEV0]
 
 	// Tecla w
-	and w11, w16, 0b00000010
+	and w11, w13, 0b00000010
 	cbz w11, skipw
 	bl aguaLava
 	bl delayLargo
@@ -319,12 +319,12 @@ loopPrincipal:
 skipw:
 
 	// Tecla a
-	and w11, w16, 0b00000100
+	and w11, w13, 0b00000100
 	cbz w11, skipa
 skipa:
 
 	// Tecla s
-	and w11, w16, 0b0001000
+	and w11, w13, 0b0001000
 	cbz w11, skips
 	bl ufoAsset
 	bl delayLargo
@@ -332,7 +332,7 @@ skipa:
 skips:
 
 	// Tecla d
-	and w11, w16, 0b00010000
+	and w11, w13, 0b00010000
 	cbz w11, skipd
 	bl moveSnail	// Modifica x22, moviendo el caracol
 	bl delayLargo
@@ -340,8 +340,10 @@ skips:
 skipd:
 
 	// Tecla espacio
-	
-	//bl neonCube
+	and w11, w13, 0b00100000
+	cbz w11, skipEsp
+	bl neonCube
+skipEsp:
 
 	b loopPrincipal
 

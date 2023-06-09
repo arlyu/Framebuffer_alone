@@ -17,37 +17,37 @@ LOAD start.o
  .text.boot     0x0000000000080000    0x100c8 start.o
                 0x0000000000080000                _start
  *(.text*)
- .text          0x00000000000900c8      0x308 anims.o
+ .text          0x00000000000900c8      0x304 anims.o
                 0x00000000000900c8                delay
                 0x00000000000900f0                delayLargo
                 0x0000000000090114                moonAnim
-                0x000000000009020c                aguaLava
-                0x0000000000090284                caida
-                0x0000000000090308                moveSnail
-                0x0000000000090358                neonCube
- .text          0x00000000000903d0      0x384 app.o
-                0x00000000000903d0                main
-                0x00000000000903d4                init
-                0x0000000000090704                loopPrincipal
-                0x0000000000090750                InfLoop
- .text          0x0000000000090754      0x9c4 figures.o
-                0x0000000000090754                parabola
-                0x00000000000907c4                cubica
-                0x00000000000907d8                cuadratica
-                0x00000000000907e8                circulo
-                0x0000000000090850                elipse
-                0x0000000000090994                cartesianos
-                0x00000000000909b4                drawpixel
-                0x00000000000909f0                skyFill
-                0x0000000000090a6c                rio
-                0x0000000000090ac0                filldowncol
-                0x0000000000090af4                Petalos
-                0x0000000000090b40                snailAsset
-                0x0000000000090c74                vallaStatic
-                0x0000000000090cfc                cultivoStatic
-                0x0000000000090d4c                cartelStatic
-                0x0000000000090db0                tringulosrep
-                0x0000000000090dec                manzana
+                0x0000000000090208                aguaLava
+                0x0000000000090280                caida
+                0x0000000000090304                moveSnail
+                0x0000000000090354                neonCube
+ .text          0x00000000000903cc      0x390 app.o
+                0x00000000000903cc                main
+                0x00000000000903d0                init
+                0x0000000000090700                loopPrincipal
+                0x0000000000090758                InfLoop
+ .text          0x000000000009075c      0x9bc figures.o
+                0x000000000009075c                parabola
+                0x00000000000907cc                cubica
+                0x00000000000907e0                cuadratica
+                0x00000000000907f0                circulo
+                0x0000000000090858                elipse
+                0x000000000009099c                cartesianos
+                0x00000000000909bc                drawpixel
+                0x00000000000909f8                skyFill
+                0x0000000000090a74                rio
+                0x0000000000090ac8                filldowncol
+                0x0000000000090afc                Petalos
+                0x0000000000090b48                snailAsset
+                0x0000000000090c7c                vallaStatic
+                0x0000000000090d04                cultivoStatic
+                0x0000000000090d54                cartelStatic
+                0x0000000000090db8                tringulosrep
+                0x0000000000090df4                manzana
                 0x0000000000090e70                espiga
                 0x0000000000090eb4                moonAsset
                 0x0000000000090f00                ufoAsset
@@ -97,9 +97,9 @@ OUTPUT(kernel8.elf elf64-littleaarch64)
 LOAD linker stubs
 
 .debug_line     0x0000000000000000      0x521
- .debug_line    0x0000000000000000       0xfc anims.o
- .debug_line    0x00000000000000fc      0x119 app.o
- .debug_line    0x0000000000000215      0x2b9 figures.o
+ .debug_line    0x0000000000000000       0xfb anims.o
+ .debug_line    0x00000000000000fb      0x11c app.o
+ .debug_line    0x0000000000000217      0x2b7 figures.o
  .debug_line    0x00000000000004ce       0x53 start.o
 
 .debug_info     0x0000000000000000       0xb8

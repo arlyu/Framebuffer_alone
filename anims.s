@@ -69,7 +69,7 @@ loopEstrellas:
 
 	mov x22,x27  //x origen
 	mov x23,x28  //y origen
-	mov x21,x29  //y origen
+	mov x21,x29  
 
 	movz x10, 0xFF, lsl 16 //Color blanco
 	movk x10, 0xFFFF, lsl 00 
@@ -102,7 +102,7 @@ loopEstrellas:
 //
 //BORDE DEL RIO
 	mov x3, 0b00	// Seteo la flag de delay
-	mov x24, 200
+	mov x24, 200	// Altura hasta la que se grafica
 	movz x10, 0x2a, lsl 16
 	movk x10, 0x2809, lsl 00 	// Elijo color	
 	mov x22, 140	// Origen "x" de la cúbica
@@ -114,7 +114,7 @@ loopEstrellas:
 //RIO
 
 	mov x3, 0b00	// Seteo la flag de delay
-	mov x24, 40
+	mov x24, 40		// Altura hasta la que se grafica
 	movz x10, 0x11, lsl 16
 	movk x10, 0x6673, lsl 00 	// Elijo color
 	mov x22, 146	// Origen "x" de la cúbica
@@ -252,7 +252,7 @@ moveSnail:
 neonCube:
 
 	sub sp, sp, 32
-	str x4, [sp, 24]		// ""Variable"" para verificar las flags de funciones
+	str x7, [sp, 24]		// ""Variable"" para verificar las flags de funciones
 	str lr, [sp,16]
 	str x22, [sp,8]
 	str x23, [sp,0]
@@ -279,7 +279,7 @@ loopNeon:
 	b.ne loopNeon			// b.ne "==" true sii la flag "Z == 0" (si la suma anterior no es 0 continua)
 endNeon:
 
-	ldr x4, [sp, 24]
+	ldr x7, [sp, 24]
 	ldr lr, [sp,16]
 	ldr x22, [sp, 8]
 	ldr x23, [sp, 0]
