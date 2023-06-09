@@ -295,8 +295,8 @@ loopamarilla:
 	mov x22, 30		// Coordenadas matriciales del caracol i = SCREEN_HEIGH-x22, j = x23
 	mov x23, 420
 
-.globl loopPrincipal
 mov x26, GPIO_BASE
+.globl loopPrincipal
 	// Setea gpios 0 - 9 como lectura
 	str wzr, [x26, GPIO_GPFSEL0]
 	// x12 servirá para las comprobaciones de las funcionalidades (para ver si algo ya se llamó, etc)
