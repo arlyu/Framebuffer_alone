@@ -174,7 +174,7 @@ fila2trigo:
 	movk x10, 0x5673, lsl 00 	// Elijo color
 	mov x21, 70
 	mov x22, 200	
-	mov x23, 140
+	mov x23, 150
 	bl elipse
 //
 //RIO DE LA MONTAÑA
@@ -280,11 +280,11 @@ loopamarilla:
 	movz x10, 0x5A, lsl 16
 	movk x10, 0x5956, lsl 00 
 	mov x21,9	
-	mov x22, 125    
+	mov x22, 120    
 	mov x23, 135
 	bl elipse
 
-	movz x22, #115
+	movz x22, #110
 	movz x23, #332
 	bl snailAsset
 //
@@ -317,7 +317,6 @@ loopPrincipal:
 	bl delayLargo
 	bl delayLargo
 skipw:
-
 	// Tecla a
 	and w11, w13, 0b00000100
 	cbz w11, skipa
@@ -326,7 +325,7 @@ skipa:
 	// Tecla s
 	and w11, w13, 0b0001000
 	cbz w11, skips
-	bl ufoAsset
+	bl moonAnim
 	bl delayLargo
 	bl delayLargo
 skips:

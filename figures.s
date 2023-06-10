@@ -358,7 +358,6 @@ rio:
 	str x23, [sp, 8]
 	str x24, [sp, 0]
 
-	mov x3, 0b10	// Seteo la flag de delay
 	mov x24, 40
 	movz x10, 0x11, lsl 16
 	movk x10, 0x6673, lsl 00 	// Elijo color
@@ -984,11 +983,11 @@ elipseCreciente:
 	str x23, [sp, 8]
 	str x24, [sp, 0]
 
-	mov x21, 10
+	mov x21, 5
 loopCreciente:
 	add x21, x21, 1 
 	bl elipse
-	bl delayLargo
+	bl delayMedio
 	cmp x21, 70
 	b.lt loopCreciente
 

@@ -1,7 +1,10 @@
 .data
-	Anim: .dword 30, 0, 0, 0, 0, 0
+	snailAnimNeeds: .dword 30, 450
 	.equ DENSITY, 5
 	.equ GPIO_GPLEV0,  0x34
+	.equ DELAYCONSTRAINT, 0xF
+	moonAnimNeeds: .dword 130,345,32,0
+
 
 //DelayLoop
 .globl delay
@@ -9,7 +12,8 @@ delay:
 	sub sp, sp, 16
 	str lr, [sp, 8]
 	str x1, [sp, 0]
-	movz x1, 0x02, lsl 16
+	mov x1, DELAYCONSTRAINT
+	lsl x1,x1,#16
 
 delayloop:
 	sub x1, x1, 1
@@ -20,38 +24,69 @@ delayloop:
 	add sp, sp, 16
 	br lr 
 //
+
+.globl delayMedio
+delayMedio:
+	sub sp, sp, 16
+	str lr, [sp, 8]
+	str x1, [sp, 0]
+	mov x1,DELAYCONSTRAINT
+	lsl x1,x1,#18
+
+delayMedioloop:
+	sub x1, x1, 1
+	cbnz x1, delayMedioloop
+
+	ldr lr, [sp, 8]
+	ldr x1, [sp, 0]
+	add sp, sp, 16
+	br lr 
+
 .globl delayLargo
 delayLargo:
 	sub sp, sp, 16
 	str lr, [sp, 8]
 	str x1, [sp, 0]
-	movz x1, 0x1F, lsl 16
+	mov x1, DELAYCONSTRAINT
+	lsl x1,x1,#19
 
 delayLargoloop:
 	sub x1, x1, 1
-	cbnz x1, delayloop
+	cbnz x1, delayLargoloop
 
 	ldr lr, [sp, 8]
 	ldr x1, [sp, 0]
 	add sp, sp, 16
+	br lr 
 
 
 //Animaciones
+
 .globl moonAnim
 moonAnim:
-	//LUNA
+	sub sp,sp,32
+	str x30,[sp]
+	str x19,[sp,8]
+	str x27,[sp,16]
+	str x28,[sp,24]
 
+	ldr x19, =moonAnimNeeds
+	ldr x27,[x19,0]
+	ldr x28,[x19,8]
 
 moonAnimLoop:
 	add x27,x27,2
 	add x28,x28,1
 
-
 	cmp x27,230 //Cuantos steps hace la luna ,step = constante - x27 input
-	bge	loopPrincipal
+	bge	moonAnimEnd
 
-	mov x24,180
+//Redibujar lo necesario para salvar esta compañia
 	mov x0,x20
+	movz x24,480
+	sub x24,x24,x28
+	add x24,x24,33
+
 	bl skyFill
 
 	//ESTRELLAS
@@ -63,21 +98,25 @@ moonAnimLoop:
 	mov x23,0  //y origen
 	add x0,x0,1
 
-loopEstrellas:
-	bl drawpixel
-	add x22,x22,40 
-	add x23,x23,2
-	sub x1,x1,1
-	cbnz x1,loopEstrellas
+	loopEstrellas:
+		bl drawpixel
+		add x22,x22,40 
+		add x23,x23,2
+		sub x1,x1,1
+		cbnz x1,loopEstrellas
 
+
+//Luna
 	mov x22,x27  //x origen
 	mov x23,x28  //y origen
-	mov x21,x29  
+	mov x21,x29  //y origen
 
-	movz x10, 0xFF, lsl 16 //Color blanco
-	movk x10, 0xFFFF, lsl 00 
+	ldr x21,=moonAnimNeeds
+	add x21,x21,16
+	ldr x21,[x21]
+	movz x10, 0xFA, lsl 16 //Color blanco
+	movk x10, 0xFAFA, lsl 00 
 	bl circulo
-
 
 	//MONTAÑA
 	movz x10, 0x4a, lsl 16
@@ -102,37 +141,50 @@ loopEstrellas:
 	mov x23,296	    //y	origen
 	mov x21,13		//ancho
 	bl tringulosrep
-//
-//BORDE DEL RIO
+
+	//BORDE DEL RIO
 	mov x3, 0b00	// Seteo la flag de delay
-	mov x24, 200	// Altura hasta la que se grafica
+	mov x24, 200
 	movz x10, 0x2a, lsl 16
 	movk x10, 0x2809, lsl 00 	// Elijo color	
-	mov x22, 140	// Origen "x" de la cúbica
+	mov x22, 142	// Origen "x" de la cúbica
 	mov x23, 273	// Origen "y" de la cúbica
 
 	mov x21, 25
 	bl caida
 
-//RIO
-
+	//Rio
 	mov x3, 0b00	// Seteo la flag de delay
-	mov x24, 40		// Altura hasta la que se grafica
-	movz x10, 0x11, lsl 16
-	movk x10, 0x6673, lsl 00 	// Elijo color
+	mov x24, 40
 	mov x22, 146	// Origen "x" de la cúbica
 	mov x23, 272	// Origen "y" de la cúbica
-	
-	mov x21, 20  // Ancho del rio
-	bl rio
+	mov x21, 20  	// Ancho del rio
+
+	movz x10, 0xf1, lsl 16
+	movk x10, 0x0613, lsl 00 	// Seteo a color rojo
+
+	//Reciclo la logica de agualava
+	ldr x9,moonAnimNeeds
+	add x9,x9,24
+	ldr x9,[x9]
+
+	cbnz x9, lavaColorMoon
+	movz x10, 0x11, lsl 16
+	movk x10, 0x6673, lsl 00 	// Seteo a color celeste
+
+lavaColorMoon:
+	bl caida
 
 	bl delayLargo
 	bl delayLargo
-	bl delayLargo
+	b moonAnimLoop
 
-//
-	b moonAnim
-
+moonAnimEnd:
+	ldr x19,[sp,8]
+	ldr x27,[sp,16]
+	ldr x28,[sp,24]
+	add sp,sp,32
+	b loopPrincipal
 
 .globl aguaLava
 aguaLava:
@@ -151,7 +203,13 @@ aguaLava:
 
 	eor x12, x12, 0b01		// Invierto el bit 0
 	and x9, x12, 0b01
+	//Guardar la evaluacion logica para redibujar en moonAnim
+	ldr x19,moonAnimNeeds
+	str x9,[x19,24]
+	//
 	cbnz x9, lavaColor
+
+
 	movz x10, 0x11, lsl 16
 	movk x10, 0x6673, lsl 00 	// Seteo a color celeste
 lavaColor:
@@ -165,7 +223,7 @@ lavaColor:
 	bl caida
 
 	mov x22, 200
-	mov x23, 140
+	mov x23, 150
 	mov x21, 70
 
 	bl elipseCreciente
@@ -227,7 +285,7 @@ termina:
 
 .globl moveSnail
 moveSnail:
-	// Mueve la coordenada x del caracol (suma 1 a Anim[0])
+	// Mueve la coordenada x del caracol (suma 1 a snailAnimNeeds[0])
 	// Utiliza, sin guardarlo, x14
 
 	sub sp, sp, 32
@@ -236,8 +294,9 @@ moveSnail:
 	str x24, [sp, 8]
 	str lr, [sp, 0]
 
-	ldr x14, =Anim 				// Almaceno las coordenadas iniciales del arreglo
-	ldr x22, [x14]				// Almaceno en x22 el valor de Anim[0]
+	ldr x14, =snailAnimNeeds 				// Almaceno las coordenadas iniciales del arreglo
+	ldr x22, [x14]				// Almaceno en x22 el valor de snailAnimNeeds[0]
+	ldr x23, [x14,8]
 
 	movz x10, 0x09, lsl 16		//Color base del piso
 	movk x10, 0x5516, lsl 00
