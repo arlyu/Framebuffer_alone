@@ -2,7 +2,7 @@
 	snailAnimNeeds: .dword 30, 450
 	.equ DENSITY, 5
 	.equ GPIO_GPLEV0,  0x34
-	.equ DELAYCONSTRAINT, 0xF
+	.equ DELAYCONSTRAINT, 0x9
 	moonAnimNeeds: .dword 130,345,32,0
 
 
@@ -65,7 +65,7 @@ delayLargoloop:
 .globl moonAnim
 moonAnim:
 	sub sp,sp,32
-	str x30,[sp]
+	str lr,[sp]
 	str x19,[sp,8]
 	str x27,[sp,16]
 	str x28,[sp,24]
@@ -99,22 +99,22 @@ moonAnimLoop:
 	add x0,x0,1
 
 	loopEstrellas:
-		bl drawpixel
-		add x22,x22,40 
-		add x23,x23,2
-		sub x1,x1,1
-		cbnz x1,loopEstrellas
+	bl drawpixel
+	add x22,x22,40 
+	add x23,x23,2
+	sub x1,x1,1
+	cbnz x1,loopEstrellas
 
 
 //Luna
-	mov x22,x27  //x origen
-	mov x23,x28  //y origen
-	mov x21,x29  //y origen
+	mov x22,x27  				//x origen
+	mov x23,x28  				//y origen
+	mov x21,x29  				//y origen
 
 	ldr x21,=moonAnimNeeds
 	add x21,x21,16
 	ldr x21,[x21]
-	movz x10, 0xFA, lsl 16 //Color blanco
+	movz x10, 0xFA, lsl 16 		//Color blanco
 	movk x10, 0xFAFA, lsl 00 
 	bl circulo
 
@@ -122,43 +122,43 @@ moonAnimLoop:
 	movz x10, 0x4a, lsl 16
 	movk x10, 0x3819, lsl 00 	// Elijo color
 
-	mov x22, 115	// Origen "x" de la parábola
-	mov x23, 390	// Origen "y" de la parábola
+	mov x22, 115				// Origen "x" de la parábola
+	mov x23, 390				// Origen "y" de la parábola
 	bl parabola
 
 	//PASTO DECO 
-	movz x10, 0x09, lsl 16 //Color un poco más oscuro de la base del piso
+	movz x10, 0x09, lsl 16 		//Color un poco más oscuro de la base del piso
 	movk x10, 0x5316, lsl 00
 
-	mov x2,8      //Espacio entre triangulos
-	mov x1 ,28   //cant de veces a repetir
-	mov x22,0 	//x origen
-	mov x23,286	//y	origen
-	mov x21,15	//ancho
+	mov x2,8   					//Espacio entre triangulos
+	mov x1 ,28 					//cant de veces a repetir
+	mov x22,0 					//x origen
+	mov x23,286					//y	origen
+	mov x21,15					//ancho
 	bl tringulosrep
-	mov x1 ,18    	//cant de veces a repetir
-	mov x22,272 	//x origen
-	mov x23,296	    //y	origen
-	mov x21,13		//ancho
+	mov x1 ,18    				//cant de veces a repetir
+	mov x22,272 				//x origen
+	mov x23,296	    			//y	origen
+	mov x21,13					//ancho
 	bl tringulosrep
 
 	//BORDE DEL RIO
-	mov x3, 0b00	// Seteo la flag de delay
+	mov x3, 0b00				// Seteo la flag de delay
 	mov x24, 200
 	movz x10, 0x2a, lsl 16
 	movk x10, 0x2809, lsl 00 	// Elijo color	
-	mov x22, 142	// Origen "x" de la cúbica
-	mov x23, 273	// Origen "y" de la cúbica
+	mov x22, 142				// Origen "x" de la cúbica
+	mov x23, 273				// Origen "y" de la cúbica
 
 	mov x21, 25
 	bl caida
 
 	//Rio
-	mov x3, 0b00	// Seteo la flag de delay
+	mov x3, 0b00				// Seteo la flag de delay
 	mov x24, 40
-	mov x22, 146	// Origen "x" de la cúbica
-	mov x23, 272	// Origen "y" de la cúbica
-	mov x21, 20  	// Ancho del rio
+	mov x22, 146				// Origen "x" de la cúbica
+	mov x23, 272				// Origen "y" de la cúbica
+	mov x21, 20  				// Ancho del rio
 
 	movz x10, 0xf1, lsl 16
 	movk x10, 0x0613, lsl 00 	// Seteo a color rojo
@@ -174,16 +174,15 @@ moonAnimLoop:
 
 lavaColorMoon:
 	bl caida
-
-	bl delayLargo
 	bl delayLargo
 	b moonAnimLoop
 
 moonAnimEnd:
-	ldr x19,[sp,8]
-	ldr x27,[sp,16]
-	ldr x28,[sp,24]
-	add sp,sp,32
+	ldr lr, [sp]
+	ldr x19, [sp,8]
+	ldr x27, [sp,16]
+	ldr x28, [sp,24]
+	add sp, sp, 32
 	b loopPrincipal
 
 .globl aguaLava
@@ -199,26 +198,24 @@ aguaLava:
 	str x24, [sp, 0]
 
 	movz x10, 0xf1, lsl 16
-	movk x10, 0x0613, lsl 00 	// Seteo a color rojo
+	movk x10, 0x0613, lsl 00		// Seteo a color rojo
 
-	eor x12, x12, 0b01		// Invierto el bit 0
+	eor x12, x12, 0b01				// Invierto el bit 0
 	and x9, x12, 0b01
 	//Guardar la evaluacion logica para redibujar en moonAnim
 	ldr x19,moonAnimNeeds
 	str x9,[x19,24]
 	//
-	cbnz x9, lavaColor
-
-
+	cbnz x9, lavaColor				
 	movz x10, 0x11, lsl 16
-	movk x10, 0x6673, lsl 00 	// Seteo a color celeste
+	movk x10, 0x6673, lsl 00 		// Si x9 == 0, seteo a color celeste
 lavaColor:
 
-	mov x3, 0b10	// Seteo la flag de delay
+	mov x3, 0b10					// Seteo la flag de delay
 	mov x24, 40
-	mov x22, 146	// Origen "x" de la cúbica
-	mov x23, 272	// Origen "y" de la cúbica
-	mov x21, 20  	// Ancho del rio
+	mov x22, 146					// Origen "x" de la cúbica
+	mov x23, 272					// Origen "y" de la cúbica
+	mov x21, 20  					// Ancho del rio
 
 	bl caida
 
@@ -294,7 +291,7 @@ moveSnail:
 	str x24, [sp, 8]
 	str lr, [sp, 0]
 
-	ldr x14, =snailAnimNeeds 				// Almaceno las coordenadas iniciales del arreglo
+	ldr x14, =snailAnimNeeds 	// Almaceno las coordenadas iniciales del arreglo
 	ldr x22, [x14]				// Almaceno en x22 el valor de snailAnimNeeds[0]
 	ldr x23, [x14,8]
 

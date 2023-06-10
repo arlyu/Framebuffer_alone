@@ -550,7 +550,7 @@ endSnail:
 .globl vallaStatic
 vallaStatic://El punto origen de la valla es el origen del rectangulo de la tabla transversal de arriba
 	sub sp,sp,#56
-	str lr,[sp]		//STACK POINTER
+	str lr,[sp]		//LINK REGISTER
 
 	str x21,[sp,8] 	//ARGUMENTOS DE LA DIMENSINON
 	str x22,[sp,16]
@@ -605,7 +605,7 @@ endValla:
 .globl cultivoStatic
 cultivoStatic:
 	sub sp,sp,#40
-	str lr,[sp]		//STACK POINTER
+	str lr,[sp]		//LINK REGISTER
 
 	str x21,[sp,8] 	//ARGUMENTOS DE LA DIMENSINON
 	str x22,[sp,16]
@@ -622,7 +622,7 @@ cultivoStatic:
 
 	bl Rectangle
 
-	ldr lr,[sp]		//STACK POINTER
+	ldr lr,[sp]		//LINK REGISTER
 
 	ldr x21,[sp,8] 	//ARGUMENTOS DE LA DIMENSINON
 	ldr x22,[sp,16]
@@ -975,6 +975,7 @@ trianguloinvert:
 	br lr
 
 .globl elipseCreciente
+// Dibuja una elipse creciente con centro en las coordenadas cartesianas (x22, x23)
 elipseCreciente:
 	sub sp, sp, 40
 	str lr, [sp, 32]
@@ -987,7 +988,7 @@ elipseCreciente:
 loopCreciente:
 	add x21, x21, 1 
 	bl elipse
-	bl delayMedio
+	bl delayLargo
 	cmp x21, 70
 	b.lt loopCreciente
 
