@@ -336,6 +336,7 @@ loopFace1:
 	ldr w13, [x26, GPIO_GPLEV0]
 	and w13, w13, 0b00100000
 	cbz w13, loopEscalon
+	bl delayLargo
 
 	ldr x10, [sp, 24]
 	ldr x22, [sp,16]

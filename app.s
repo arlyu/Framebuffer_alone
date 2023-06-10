@@ -15,7 +15,7 @@ main:
 
 .globl init
 init:
-	bl neonFace
+	
 	movz x24,270 //Llenar el cielo exctamente hasta donde empieza el suelo
 	bl skyFill
 
@@ -342,7 +342,8 @@ skipd:
 	// Tecla espacio
 	and w11, w13, 0b00100000
 	cbz w11, skipEsp
-	
+	bl neonFace
+	b init	
 skipEsp:
 
 	b loopPrincipal
