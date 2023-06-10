@@ -11,14 +11,15 @@
 main:
 	// x0 contiene la direccion base del framebuffer
 	mov x20, x0 // Guarda la dirección base del framebuffer en x20
+	mov x26, GPIO_BASE	
 
 .globl init
 init:
+	
 	movz x24,270 //Llenar el cielo exctamente hasta donde empieza el suelo
 	bl skyFill
 
-
-
+// Introduccion
 
 //ESTRELLAS
 	movz x10, 0xFF, lsl 16 //Color blanco
@@ -83,7 +84,6 @@ fila2trigo:
 	add x22,x22,10
 	sub x4,x4,1
 	cbnz x4,fila2trigo
-
 	
 //
 //Cartel
@@ -161,34 +161,33 @@ fila2trigo:
 //
 //BORDE DEL RIO
 	mov x3, 0b00	// Seteo la flag de delay
-	mov x24, 200
+	mov x24, 200	// Altura hasta la que se grafica
 	movz x10, 0x2a, lsl 16
 	movk x10, 0x2809, lsl 00 	// Elijo color	
 	mov x22, 142	// Origen "x" de la cúbica
 	mov x23, 273	// Origen "y" de la cúbica
 
 	mov x21, 25
-	bl rio
+	bl caida
 //LAGUNA
 	movz x10, 0x01, lsl 16
 	movk x10, 0x5673, lsl 00 	// Elijo color
 	mov x21, 70
-	mov x22, 200
+	mov x22, 200	
 	mov x23, 140
 	bl elipse
 //
 //RIO DE LA MONTAÑA
 rioClaro:
 	mov x3, 0b00	// Seteo la flag de delay
-	mov x24, 40
+	mov x24, 40		// Altura hasta la que se grafica
 	movz x10, 0x11, lsl 16
 	movk x10, 0x6673, lsl 00 	// Elijo color
 	mov x22, 146	// Origen "x" de la cúbica
 	mov x23, 272	// Origen "y" de la cúbica
 	
 	mov x21, 20  // Ancho del rio
-	bl rio
-
+	bl caida
 //
 //FLORES: Registro x1 usado como auxiliar
 	
@@ -290,48 +289,64 @@ loopamarilla:
 	bl snailAsset
 //
 
-
-
-
 	mov x26, GPIO_BASE
 	// Setea gpios 0 - 9 como lectura
 	str wzr, [x26, GPIO_GPFSEL0]
 	// x12 servirá para las comprobaciones de las funcionalidades (para ver si algo ya se llamó, etc)
 	mov x12, 0b0000
-	mov x22, 30		// Coordenadas matriciales del caracol i = SCREEN_HEIGH-x22, j = x23
-	mov x23, 420
 
+	mov x26, GPIO_BASE
 .globl loopPrincipal
+	// Setea gpios 0 - 9 como lectura
+	str wzr, [x26, GPIO_GPFSEL0]
+	// x12 servirá para las comprobaciones de las funcionalidades (para ver si algo ya se llamó, etc)
+	mov x12, 0b0000
+	mov x22, 30		// Coordenadas matriciales iniciales del caracol i = SCREEN_HEIGH-x22, j = x23
+	mov x23, 450
+	bl snailAsset
+
 loopPrincipal:
 
 	// Lee el estado de los GPIO 0 - 31
+	ldr w13, [x26, GPIO_GPLEV0]
 
-	ldr w16, [x26, GPIO_GPLEV0]
 	// Tecla w
-	cbz w16,loopPrincipal
-
-	and w11, w16, 0b00000010
-	cmp w11,2
-	beq wOnPush
-
-	//Poner el delay aca 
-
-	and w11, w16, 0b0000100
-	cmp w11,4
-	beq aOnPush
-
-	b loopPrincipal
-
-	b InfLoop
-
-wOnPush:
-	bl moonAnim
-	b loopPrincipal
-
-aOnPush:
+	and w11, w13, 0b00000010
+	cbz w11, skipw
 	bl aguaLava
-	b loopPrincipal
+	bl delayLargo
+	bl delayLargo
+skipw:
 
+	// Tecla a
+	and w11, w13, 0b00000100
+	cbz w11, skipa
+skipa:
+
+	// Tecla s
+	and w11, w13, 0b0001000
+	cbz w11, skips
+	bl ufoAsset
+	bl delayLargo
+	bl delayLargo
+skips:
+
+	// Tecla d
+	and w11, w13, 0b00010000
+	cbz w11, skipd
+	bl moveSnail		// Modifica Anim[0], moviendo el caracol
+	bl delayLargo
+	bl delayLargo
+skipd:
+
+	// Tecla espacio
+	and w11, w13, 0b00100000
+	cbz w11, skipEsp
+	bl neonFace
+	b init	
+skipEsp:
+
+	b loopPrincipal
 
 //---------FUNCIONES AUXILIARES------------	
 	//---------------------------------------------------------------

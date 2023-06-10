@@ -79,7 +79,7 @@ cuadratica:
 .globl circulo
 circulo:
 	// Dibuja un círculo de radio x21 con centro en las coordenadas cartesianas (x22, x23)
-	// Utiliza x1, x2, x16 y x17 sin guardarlos
+	// Utiliza x1, x2, x16
 
 	sub sp,sp,32
 	str lr, [sp,0]
@@ -124,7 +124,7 @@ endCirculo:
 .globl elipse
 elipse:
 	// Dibuja un círculo de radio x21 con centro en las coordenadas cartesianas (x22, x23)
-	// Utiliza x1, x2, x16 y x17 sin guardarlos
+	// Utiliza x1, x2, x16
 
 	sub sp,sp,32
 	str lr, [sp,0]
@@ -166,6 +166,7 @@ endElipse:
 	br lr
 //
 
+.globl puntoRelativo
 puntoRelativo:
 	// Dibuja el punto relativo al centro (x1, x2) de las coordenadas (x22, x23)
 	// Se asume la correspondencia de x1 y x2
@@ -178,7 +179,7 @@ puntoRelativo:
 	add x22,x22, x1
 	add x23,x23, x2
 	bl cartesianos
-	str w10,[x0]
+	str w10, [x0]
 
 	ldr lr, [sp,16]
 	ldr x22, [sp, 8]
@@ -296,7 +297,7 @@ drawpixel:
 	ldr x22 ,[sp,16]
 	add sp,sp,24
 
-	br x30
+	br lr
 
 //
 
@@ -305,7 +306,7 @@ skyFill:
 	//Asume que x0 tiene la coordenada de inciio del framebuffer
 	sub sp ,sp ,40
 
-	str x30 ,[sp]	//Stack pointer
+	str lr ,[sp]	//Stack pointer
 	str x0 ,[sp,8]	//Framebuffer direccion base
 	str x1 ,[sp,16]	//Auxiliar
 	str x2 ,[sp,24]	//Auxiliar
@@ -350,46 +351,28 @@ endSkyFill:
 rio:
 	// Dibuja una forma de rio a partir de una función cúbica centrada en (x22, x23), hasta la altura x24
 	// Utiliza (SIN GUARDAR) los registros x16, x17, x18 y x19
-	sub sp, sp, 32
-	str x7, [sp, 24]		// ""Variable"" para verificar las flags de funciones
-	str lr, [sp,16]
-	str x22, [sp,8]
-	str x23, [sp,0]
+	sub sp, sp, 40
+	str lr, [sp, 32]
+	str x21, [sp, 24]
+	str x22, [sp, 16]
+	str x23, [sp, 8]
+	str x24, [sp, 0]
 
-	and x3, x3, 0xfe		// Setea el funcionamiento de LineH
-	mov x18, x22			// Almaceno en x18 el valor "x" del centro
-	mov x19, x23			// Almaceno en x19 el valor "y" del centro
+	mov x3, 0b10	// Seteo la flag de delay
+	mov x24, 40
+	movz x10, 0x11, lsl 16
+	movk x10, 0x6673, lsl 00 	// Elijo color
+	mov x22, 146	// Origen "x" de la cúbica
+	mov x23, 272	// Origen "y" de la cúbica
+	mov x21, 20  // Ancho del rio
+	bl caida
 
-	mov x16, 39				// Longitud entera del intervalo de puntos a evaluar
-	lsl x16, x16, DENSITY	// Defino los decimales que tendrá la variable a evaluar
-	mov x4, x16 			// x4 <-> Primer valor a evaluar
-
-looprio:
-	asr x17, x4, DENSITY	// x17 = "un múltiplo de x4 pensado como entero entero"
-	sub x17, xzr, x17		// Reflejo la gráfica
-	add x22, x18, x17		// Ubico el valor "x" centro en   centro_originalx + x17    
-	bl cubica
-	asr x17, x0, 14			// x17 = "un múltiplo de x4^2 pensado como entero entero"
-	add x23, x17, x19		// Ubico el valor "y" centro en   centro_originaly + x17
-	bl cartesianos			// Devuelve en x0 las coordenadas requeridas
-	cmp x23, x24
-	b.lt termina			// Si x23 (la altura actual) es más baja que x24 deja de dibujar
-	and x7, x3, 0b10
-	cbz x7, noDelayRio
-	bl delay				// Delay para generar efecto
-
-noDelayRio:
-	bl LineH				// Ensancha el rio
-	sub x4, x4, 1
-	adds xzr, x4, x16		// Verifico si x4 es el opuesto de x16
-	b.ne looprio			// b.ne "==" true sii la flag "Z == 0" (si la suma anterior no es 0 continua)
-
-termina:
-	ldr x7, [sp, 24]
-	ldr lr, [sp,16]
-	ldr x22, [sp, 8]
-	ldr x23, [sp, 0]
-	add sp, sp, 32
+	ldr lr, [sp, 32]
+	ldr x21, [sp, 24]
+	ldr x22, [sp, 16]
+	ldr x23, [sp, 8]
+	ldr x24, [sp, 0]
+	add sp, sp, 40
 
 	br lr
 
@@ -425,7 +408,7 @@ Petalos:
 	//Color x10
 	//Pinta 4 colores al rededor del centro
 	sub sp ,sp ,24
-	str x30 ,[sp,16]
+	str lr ,[sp,16]
 	str x23 ,[sp,8]
 	str x22 ,[sp]
 
@@ -442,15 +425,15 @@ Petalos:
 	add x23,x23,x24
 	bl Rectangle
 	ldr x23 ,[sp,8] //restablecer valor de 23
-	ldr x30 ,[sp,16]
+	ldr lr ,[sp,16]
 	add sp ,sp ,24
-	br x30
+	br lr
 
 .globl snailAsset
 snailAsset:
 	//El punto origen (x,y) del caracol -> (x22,x23) ,Es la superior mas a la izquierda del caracol
 	sub sp,sp,#48
-	str x30,[sp]		//STACK POINTER
+	str lr,[sp]		//STACK POINTER
 
 	str x21,[sp,8] 	//ARGUMENTOS DE LA DIMENSINON
 	str x22,[sp,16]
@@ -556,19 +539,19 @@ snailAsset:
 
 endSnail:
 	
-	ldr x30 ,[sp]
+	ldr lr ,[sp]
 	ldr x21 ,[sp,8]
 	ldr x22 ,[sp,16]
 	ldr x23 ,[sp,24]
 	ldr x24 ,[sp,32]
 	ldr x10 ,[sp,40]
 	add sp,sp,#48
-	br x30
+	br lr
 
 .globl vallaStatic
 vallaStatic://El punto origen de la valla es el origen del rectangulo de la tabla transversal de arriba
 	sub sp,sp,#56
-	str x30,[sp]		//STACK POINTER
+	str lr,[sp]		//STACK POINTER
 
 	str x21,[sp,8] 	//ARGUMENTOS DE LA DIMENSINON
 	str x22,[sp,16]
@@ -611,19 +594,19 @@ vallaLogLoop:
 	cbnz x1 ,vallaLogLoop
 
 endValla:
-	ldr x30 ,[sp]
+	ldr lr ,[sp]
 	ldr x21 ,[sp,8]
 	ldr x22 ,[sp,16]
 	ldr x23 ,[sp,24]
 	ldr x24 ,[sp,32]
 	ldr x10 ,[sp,40]
 	add sp,sp,#48
-	br x30
+	br lr
 
 .globl cultivoStatic
 cultivoStatic:
 	sub sp,sp,#40
-	str x30,[sp]		//STACK POINTER
+	str lr,[sp]		//STACK POINTER
 
 	str x21,[sp,8] 	//ARGUMENTOS DE LA DIMENSINON
 	str x22,[sp,16]
@@ -640,7 +623,7 @@ cultivoStatic:
 
 	bl Rectangle
 
-	ldr x30,[sp]		//STACK POINTER
+	ldr lr,[sp]		//STACK POINTER
 
 	ldr x21,[sp,8] 	//ARGUMENTOS DE LA DIMENSINON
 	ldr x22,[sp,16]
@@ -649,12 +632,12 @@ cultivoStatic:
 
 	add sp,sp,#40
 
-	br x30
+	br lr
 
 .globl cartelStatic
 cartelStatic:
 	sub sp,sp,#48
-	str x30 ,[sp]
+	str lr ,[sp]
 	str x21 ,[sp,8]
 	str x22 ,[sp,16]
 	str x23 ,[sp,24]
@@ -677,22 +660,22 @@ cartelStatic:
 	bl Rectangle
 
 
-	ldr x30 ,[sp]
+	ldr lr ,[sp]
 	ldr x21 ,[sp,8]
 	ldr x22 ,[sp,16]
 	ldr x23 ,[sp,24]
 	ldr x24 ,[sp,32]
 	ldr x10 ,[sp,40]
 	add sp,sp,#48
-	br x30
+	br lr
 
 .globl tringulosrep
 tringulosrep:
 // Usa x22 y x23 como coordenadas (x,y) de origen, x21 para el ancho de la base de los triángulos 
-// Como auxiliares: estàn x1 que es la cant de trangulos que se van a hacer 
+// Como auxiliares: estan x1 que es la cant de trangulos que se van a hacer 
 //x2 que es la distancia entre tringulos
 	sub sp,sp,32
-	str x30 ,[sp,24]
+	str lr ,[sp,24]
 tringulosreploop:
 	str x21 ,[sp,16]
 	str x23 ,[sp,8]
@@ -704,15 +687,14 @@ tringulosreploop:
 	add x22,x22,x2
 	sub x1,x1,1
 	cbnz x1,tringulosreploop
-	ldr x30 ,[sp,24]
+	ldr lr ,[sp,24]
 	add sp ,sp ,32
-	br x30
+	br lr
 //
 .globl manzana
 manzana:
-	sub sp,sp,16
-	str x30 ,[sp]
-	str x20 ,[sp,8]
+	sub sp,sp,8
+	str lr ,[sp]
 	mov x21, 10
 	bl circulo
 
@@ -748,9 +730,8 @@ manzana:
 	add x23,x23,8
 	bl elipse
 
-	ldr x30 ,[sp]
-	ldr x20 ,[sp,8]
-	add sp ,sp ,16
+	ldr lr ,[sp]
+	add sp ,sp ,8
 
 	br lr
 //
@@ -758,7 +739,7 @@ manzana:
 .globl espiga
 espiga:
 	sub sp,sp,8
-	str x30 ,[sp]
+	str lr ,[sp]
 
  	movz x10, 0x96, lsl 16
     movk x10, 0x8200, lsl 00
@@ -776,49 +757,13 @@ loopespiga:
 	sub x3,x3,1
 	cbnz x3,loopespiga
 
-	ldr x30 ,[sp]
+	ldr lr ,[sp]
 	add sp ,sp ,8
-	br x30
-/*
-arbolAsset:
-	sub sp,sp,40
-	str x30,[sp]			//Stackpointer
-	str x22,[sp,8]			//Origen x de la base del arbol
-	str x23,[sp,16]			//Origen y de la base del arbol
-	str x10,[sp,24]			//No perder un color de antes
-	str x3,[sp,32]          //Abol color "1" o "0"  (Color "1" ,si x3 not zero)
-
-	movz x10, 0x81, lsl 16
-	movk x10, 0x4929, lsl 00
-	cbnz x3,arbolAssetDraw
-arbolColor:
-	//Tronco
-	movz x10,0x81,lsl 16
-	movk x10,0x4929,lsl 00
-
-arbolAssetDraw:
-	movz x21,10,lsl 00
-	movz x24,30,lsl 00
-	bl Rectangle
-	bl cartesianos
-	movz x21,10,lsl 00
-	mov x22, x22  //x
-	mov x23, x23  //y
-	bl elipse
-
-endArbol:
-	ldr x30,[sp]			//Stackpointer
-	ldr x22,[sp,8]			//Origen x de la base del arbol
-	ldr x23,[sp,16]			//Origen y de la base del arbol
-	ldr x10,[sp,24]			//No perder un color de antes
-	ldr x3,[sp,32]          //Abol color "1" o "0"  (Color "1" ,si x3 not zero)
-	add sp,sp,40
 	br lr
-*/
 .globl moonAsset
 moonAsset:
 	sub sp,sp,40
-	str x30,[sp]			//Stackpointer
+	str lr,[sp]			//Stackpointer
 	str x22,[sp,8]			//Origen x de la base de la estrella
 	str x23,[sp,16]			//Origen y de la base de la estrella
 	str x21,[sp,24]			//Origen y de la base de la estrella
@@ -837,7 +782,7 @@ moonAsset:
 
 	bl circulo
 
-	ldr x30,[sp]
+	ldr lr,[sp]
 	ldr x22,[sp,8]
 	ldr x23,[sp,16]
 	ldr x10,[sp,24]
@@ -847,34 +792,32 @@ moonAsset:
 .globl ufoAsset
 ufoAsset:
 	sub sp,sp,40
-	str x30,[sp]			//Stackpointer
-	str x22,[sp,8]			//Origen x de la base de la estrella
-	str x23,[sp,16]			//Origen y de la base de la estrella
-	str x21,[sp,24]			//Origen y de la base de la estrella
+	str lr,[sp]			
+	str x22,[sp,8]			
+	str x23,[sp,16]			
+	str x21,[sp,24]			
 	str x10,[sp,32]			//No perder un color de antes
 
-	movz x10,0xc6db ,lsl 00
-	movk x10,0x86, lsl 16
+	movz x10,0xc00 ,lsl 00
+	movk x10,0x80, lsl 16
 	bl elipse
 
-	lsl x21,x21,1
+	lsl x21,x21,4
 	sub x23,x23,17
 
-	movz x10,0x5a61 ,lsl 00
-	movk x10,0x46, lsl 16
+	movz x10,0x00 ,lsl 00
+	movk x10,0x00, lsl 16
 
 	bl elipse
 
-
-
-
-	ldr x30,[sp]			//Stackpointer
-	ldr x22,[sp,8]			//Origen x de la base de la estrella
-	ldr x23,[sp,16]			//Origen y de la base de la estrella
-	str x21,[sp,24]			//TAMAÑO DEL UFO
+	ldr lr,[sp]				
+	ldr x22,[sp,8]			
+	ldr x23,[sp,16]			
+	ldr x21,[sp,24]			//TAMAÑO DEL UFO
 	ldr x10,[sp,32]			//No perder un color de antes
 	add sp,sp,40
 
+	br lr
 
 //---------------Formas geometricas
 
@@ -946,7 +889,7 @@ Line:
 	str x23 ,[sp,24]
 	str x2 ,[sp,16]
 	str x1 ,[sp,8]
-	str x30 ,[sp] //pointer para salir
+	str lr ,[sp] //pointer para salir
 	add x21 ,x21, x22
 
 Lineloop:
@@ -959,7 +902,7 @@ Lineloop:
 
 endLine:
 	//Habiendo terminado la linea se devuelven los valores a los regs usados
-	ldr x30 ,[sp]
+	ldr lr ,[sp]
 	ldr x1 ,[sp,8]
 	ldr x2 ,[sp,16]
 	ldr x23 ,[sp,24]
@@ -975,7 +918,7 @@ Rectangle:
 	//Crea un rectangulo tamaño x24 * x21 , desde el vertice origen (x22,x23) , siendo el vertice superior izquierdo
 	//x1 es una variable auxiliar
 	sub sp,sp,#40
-	str x30 ,[sp]
+	str lr ,[sp]
 	str x21 ,[sp,8]
 	str x22 ,[sp,16]
 	str x23 ,[sp,24]
@@ -990,20 +933,20 @@ Rectangleloop:
 	bge Rectangleloop
 
 endRectangle:
-	ldr x30 ,[sp]
+	ldr lr ,[sp]
 	ldr x21 ,[sp,8]
 	ldr x22 ,[sp,16]
 	ldr x23 ,[sp,24]
 	ldr x24 ,[sp,32]
 	add sp,sp,#40
-	br x30
+	br lr
 
 .globl triangulo
 triangulo:  
 //Usa x22 y x23 como coordenadas (x,y), por otra parte el x21 determina el ancho de la base (tamaño). 
 //El x21 solo pueden ser números impares.
 	sub sp ,sp ,8
-	str x30 ,[sp]
+	str lr ,[sp]
 	add x22,x22,1
 	sub x23,x23,1
 	bl Line
@@ -1011,16 +954,16 @@ triangulo:
 	cmp x21,1
 	bge triangulo
 
-	ldr x30 ,[sp]
+	ldr lr ,[sp]
 	add sp,sp,8
-	br x30
+	br lr
 
 .globl trianguloinvert
 trianguloinvert:  
 //Usa x22 y x23 como coordenadas (x,y), por otra parte el x21 determina el ancho de la base (tamaño). 
 //El x21 solo pueden ser números impares.
 	sub sp ,sp ,8
-	str x30 ,[sp]
+	str lr ,[sp]
 	add x22,x22,1
 	add x23,x23,1
 	bl Line
@@ -1028,9 +971,9 @@ trianguloinvert:
 	cmp x21,1
 	bge trianguloinvert
 
-	ldr x30 ,[sp]
+	ldr lr ,[sp]
 	add sp,sp,8
-	br x30
+	br lr
 
 .globl elipseCreciente
 elipseCreciente:
@@ -1041,14 +984,11 @@ elipseCreciente:
 	str x23, [sp, 8]
 	str x24, [sp, 0]
 
-	mov x22, 200
-	mov x23, 150
-	mov x21, 5
-
+	mov x21, 10
 loopCreciente:
 	add x21, x21, 1 
 	bl elipse
-	//bl delayLargo
+	bl delayLargo
 	cmp x21, 70
 	b.lt loopCreciente
 
@@ -1057,5 +997,6 @@ loopCreciente:
 	ldr x22, [sp, 16]
 	ldr x23, [sp, 8]
 	ldr x24, [sp, 0]
+	add sp, sp, 40
 
 	br lr
