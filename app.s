@@ -341,8 +341,8 @@ skipd:
 	// Tecla espacio
 	and w11, w13, 0b00100000
 	cbz w11, skipEsp
-	bl neonFace
-	b init	
+	bl newUFO
+	bl delayLargo
 skipEsp:
 
 	b loopPrincipal

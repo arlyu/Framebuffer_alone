@@ -1,5 +1,6 @@
 .data
 	snailAnimNeeds: .dword 30, 450
+	blackHoleSize: .dword 5
 	.equ DENSITY, 5
 	.equ GPIO_GPLEV0,  0x34
 	.equ DELAYCONSTRAINT, 0x9
@@ -317,93 +318,121 @@ moveSnail:
 
 	br lr
 
-.globl neonLine
-neonLine:
-	// Dibuja una linea psicodelica en las coordenadas cartesianas (x1, x2)
+.globl newUFO
+newUFO:
+	sub sp, sp, 8
+	str lr, [sp]
 
+	bl spaceTravel
+
+	ldr lr, [sp]
+	br lr
+
+//
+spaceTravel:
 	sub sp, sp, 32
-	str x7, [sp, 24]		// ""Variable"" para verificar las flags de funciones
-	str lr, [sp,16]
-	str x22, [sp,8]
-	str x23, [sp,0]
+	str x22, [sp, 24]
+	str x21, [sp, 16]
+	str x24, [sp, 8]
+	str lr, [sp, 0]
 
-	mov x22, 0
-	mov x23, 0
+	mov x22, 420
+	mov x23, 390
+	
+	ldr x14, =blackHoleSize
+	ldr w21, [x14]
+	add w21, w21, 10
+	str w21, [x14]
 
-	and x3, x3, 0xfe		// Setea el funcionamiento de LineH para que extienda hacia la derecha
-	mov x18, x1				// Almaceno en x18 el valor "x" del centro
-	mov x19, x2				// Almaceno en x19 el valor "y" del centro
+	movz x10, 0xff, lsl 16
+	movk x10, 0xffff, lsl 00
 
-	mov x4, 0 				// x4 <-> Primer valor a evaluar
+	bl blackHole
 
-loopNeon:
-	add x22, x18, x4
-	bl lineal
-	add x23, x0, x19		// Ubico el valor "y" centro en   centro_originaly + x17
-	bl delay				// Delay para generar efecto
-	bl LineH
-	bl LineD
-	add x4, x4, 1
-	cmp x4, 30
-	b.le loopNeon
-endNeon:
+	movz x10, 0x44, lsl 16
+	movk x10, 0x11aa, lsl 00
 
-	ldr x7, [sp, 24]
-	ldr lr, [sp,16]
-	ldr x22, [sp, 8]
-	ldr x23, [sp, 0]
+	bl blackHole
+
+	mov x10, 0
+
+	bl blackHole
+
+	ldr x22, [sp, 24]
+	ldr x21, [sp, 16]
+	ldr x24, [sp, 8]
+	ldr lr, [sp, 0]
+	add sp, sp, 32
+
+	br lr
+//
+
+blackHole:
+	sub sp, sp, 32
+	str x22, [sp, 24]
+	str x21, [sp, 16]
+	str x24, [sp, 8]
+	str lr, [sp, 0]
+
+	ldr x14, =blackHoleSize
+	ldr x14, [x14]
+
+	mov x21, 5
+loopBlackHole0:
+	add x21, x21, 1 
+	bl elipse
+	bl delayMedio
+	cmp x21, x14
+	b.lt loopBlackHole0
+
+	cmp x14, 120
+	b.le noEyes
+loopBlackHole1:
+	mov x21, 5
+	mov x10, 0xff
+	add x21, x21, 1 
+	bl circulo
+	bl delayMedio
+	cmp x21, x14
+	b.lt loopBlackHole1	
+noEyes:
+
+	ldr x22, [sp, 24]
+	ldr x21, [sp, 16]
+	ldr x24, [sp, 8]
+	ldr lr, [sp, 0]
 	add sp, sp, 32
 
 	br lr
 
-.globl neonFace
-neonFace:
-	sub sp, sp, 40
-	str x10, [sp, 24]
-	str x22, [sp,16]
-	str x23, [sp, 8]
+eyes:
+	sub sp, sp, 32
+	str x22, [sp, 24]
+	str x21, [sp, 16]
+	str x24, [sp, 8]
 	str lr, [sp, 0]
 
-	mov x1, 0
-	mov x2, 0
-	mov x22, 150
-	mov x23, 120
+	mov x21, 25
+	mov x22, 420
+	mov x23, 390
 
-loopEscalon:
-	mov x22, 150
-	mov x23, 120
-	movz x10, 0x1f, lsl 16 
-	cmp x2, 640
-	b.le loopFace0
-	mov x2, 0
-loopFace0:
-	bl neonLine
-	add x1, x1, 1
-	sub x22, x22, 1
-	add x10, x10, 0xf
-	cbnz x22, loopFace0
+	movz x10, 0x44, lsl 16
+	movk x10, 0x11aa, lsl 00
+	
+	bl circulo
 
-loopFace1:
-	bl neonLine
-	add x10, x10, 0xf
-	add x2, x2, 1
-	sub x23, x23, 1
-	cbnz x23, loopFace1
-	ldr w13, [x26, GPIO_GPLEV0]
-	and w13, w13, 0b00100000
-	cbz w13, loopEscalon
-	bl delayLargo
+	movz x10, 0xff, lsl 16
+	movk x10, 0xffff, lsl 00
 
-	ldr x10, [sp, 24]
-	ldr x22, [sp,16]
-	ldr x23, [sp, 8]
+	bl circulo
+
+	mov x10, 0
+
+	ldr x22, [sp, 24]
+	ldr x21, [sp, 16]
+	ldr x24, [sp, 8]
 	ldr lr, [sp, 0]
-	add sp, sp, 40
+	add sp, sp, 32
 
-	br lr
-
-lineal:
-	// Retorna en x0 el valor de evaluar la funcion lineal x4
-	mov x0, x4
 	br lr
 

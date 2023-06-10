@@ -62,38 +62,37 @@ LOAD start.o
  .rela.text.boot
                 0x0000000000110e10        0x0 anims.o
 
-.data           0x0000000000110e10      0x480
- .data          0x0000000000110e10      0x480 anims.o
-                0x0000000000110e40                delay
-                0x0000000000110e6c                delayMedio
-                0x0000000000110e98                delayLargo
-                0x0000000000110ec4                moonAnim
-                0x0000000000111018                aguaLava
-                0x0000000000111098                caida
-                0x000000000011111c                moveSnail
-                0x0000000000111184                neonLine
-                0x00000000001111ec                neonFace
- .data          0x0000000000111290        0x0 app.o
- .data          0x0000000000111290        0x0 figures.o
- .data          0x0000000000111290        0x0 start.o
+.data           0x0000000000110e10      0x4d0
+ .data          0x0000000000110e10      0x4d0 anims.o
+                0x0000000000110e48                delay
+                0x0000000000110e74                delayMedio
+                0x0000000000110ea0                delayLargo
+                0x0000000000110ecc                moonAnim
+                0x0000000000111020                aguaLava
+                0x00000000001110a0                caida
+                0x0000000000111124                moveSnail
+                0x000000000011118c                newUFO
+ .data          0x00000000001112e0        0x0 app.o
+ .data          0x00000000001112e0        0x0 figures.o
+ .data          0x00000000001112e0        0x0 start.o
 
-.igot.plt       0x0000000000111290        0x0
- .igot.plt      0x0000000000111290        0x0 anims.o
+.igot.plt       0x00000000001112e0        0x0
+ .igot.plt      0x00000000001112e0        0x0 anims.o
 
-.bss            0x0000000000111290        0x0
+.bss            0x00000000001112e0        0x0
  *(.bss*)
- .bss           0x0000000000111290        0x0 anims.o
- .bss           0x0000000000111290        0x0 app.o
- .bss           0x0000000000111290        0x0 figures.o
- .bss           0x0000000000111290        0x0 start.o
+ .bss           0x00000000001112e0        0x0 anims.o
+ .bss           0x00000000001112e0        0x0 app.o
+ .bss           0x00000000001112e0        0x0 figures.o
+ .bss           0x00000000001112e0        0x0 start.o
 
-.bss            0x0000000000111290        0x0
-                0x0000000000111290                . = ALIGN (0x10)
-                0x0000000000111290                __bss_start = .
+.bss            0x00000000001112e0        0x0
+                0x00000000001112e0                . = ALIGN (0x10)
+                0x00000000001112e0                __bss_start = .
  *(.bss .bss.*)
  *(COMMON)
-                0x0000000000111290                __bss_end = .
-                0x0000000000111290                _end = .
+                0x00000000001112e0                __bss_end = .
+                0x00000000001112e0                _end = .
                 0x0000000000000000                __bss_size = ((__bss_end - __bss_start) >> 0x3)
 OUTPUT(kernel8.elf elf64-littleaarch64)
 LOAD linker stubs
