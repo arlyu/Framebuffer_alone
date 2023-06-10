@@ -5,7 +5,6 @@
 	.equ DELAYCONSTRAINT, 0x9
 	moonAnimNeeds: .dword 130,345,32,0
 
-
 //DelayLoop
 .globl delay
 delay:
@@ -43,6 +42,36 @@ delayCortoLoop:
 	br lr 
 
 //
+
+.globl initArrays
+initArrays:
+	// Inicializa los valores de los arrays para las animaciones
+
+	sub sp, sp, 8
+	str lr, [sp]
+
+	// Inicializo los valores del caracol principal
+	ldr x9, =snailAnimNeeds		
+	mov x11, 30					// Coordenada matricial j
+	str x11, [x9]
+	mov x11, 450				// Coordenada matricial i
+	str x11, [x9, 8]
+
+	// Inicializo los valores de la Luna
+	ldr x9, =moonAnimNeeds
+	mov x11, 130
+	str x11, [x9]
+	mov x11, 345
+	str x11, [x9, 8]
+	mov x11, 32
+	str x11, [x9, 16]
+	movz x11, 0, lsl 00
+	str x11, [x9, 24]
+
+
+	ldr lr, [sp]
+	add sp, sp, 8
+	br lr
 
 .globl delayMedio
 delayMedio:
@@ -183,7 +212,7 @@ moonAnimLoop:
 	movk x10, 0x0613, lsl 00 	// Seteo a color rojo
 
 	//Reciclo la logica de agualava
-	ldr x9,moonAnimNeeds
+	ldr x9, =moonAnimNeeds
 	add x9,x9,24
 	ldr x9,[x9]
 
@@ -222,7 +251,7 @@ aguaLava:
 	eor x12, x12, 0b01				// Invierto el bit 0
 	and x9, x12, 0b01
 	//Guardar la evaluacion logica para redibujar en moonAnim
-	ldr x19,moonAnimNeeds
+	ldr x19, =moonAnimNeeds
 	str x9,[x19,24]
 	//
 	cbnz x9, lavaColor				
@@ -337,6 +366,8 @@ moveSnail:
 	br lr
 
 .globl telon
+	// Realiza una animación de "Cierre" , a partir de un circulo central.
+
 telon:
 	sub sp, sp, 32
 	str x22, [sp, 24]
@@ -344,40 +375,18 @@ telon:
 	str x24, [sp, 8]
 	str lr, [sp, 0]
 
-
-	mov x10, 0
-	mov x16, 0
-	mov x17, 230
-	mov x22, 0
-	mov x23, 0
-	
-	mov x21, 60
-	mov x24, 10
-	mov x4, 0
-
-	mov x3, 0
+	mov x21, 5
+	mov x22, 320
+	mov x23, 240
+	movz x10, 0x09, lsl 16		//Color base del piso
+	movk x10, 0x5516, lsl 00
 
 loopTelon:
-	bl cubica
-	sub x0, xzr, x0
-	asr x0, x0, 12
-	mov x23, x0
-	add x22, x22, x16
-	add x23, x23, x17
-	bl cartesianos
 	bl circulo
-	bl delayCorto	
-	add x4, x4, 1
-	asr x22, x4, 5
-	cmp x22, x21
+	add x21, x21, 15
+	bl delayCorto
+	cmp x21, 480
 	b.le loopTelon
-	mov x4, x21
-	lsl x4, x4, 5
-	sub x4, xzr, x4
-	sub x24, x24, 1
-	add x16, x16, x21
-	add x16, x16, x21
-	cbnz x24, loopTelon
 
 	ldr x22, [sp, 24]
 	ldr x21, [sp, 16]

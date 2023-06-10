@@ -15,7 +15,7 @@ main:
 
 .globl init
 init:
-	
+	bl initArrays
 	movz x24,270 //Llenar el cielo exctamente hasta donde empieza el suelo
 	bl skyFill
 
@@ -335,13 +335,14 @@ skips:
 	cbz w11, skipd
 	bl moveSnail		// Modifica Anim[0], moviendo el caracol
 	bl delayLargo
-	bl delayLargo
 skipd:
 
 	// Tecla espacio
 	and w11, w13, 0b00100000
 	cbz w11, skipEsp
 	bl telon
+	bl delayLargo
+	b _start
 skipEsp:
 
 	b loopPrincipal
