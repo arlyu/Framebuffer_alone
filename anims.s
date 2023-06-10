@@ -1,6 +1,5 @@
 .data
 	snailAnimNeeds: .dword 30, 450
-	blackHoleSize: .dword 5
 	.equ DENSITY, 5
 	.equ GPIO_GPLEV0,  0x34
 	.equ DELAYCONSTRAINT, 0x9
@@ -24,6 +23,25 @@ delayloop:
 	ldr x1, [sp, 0]
 	add sp, sp, 16
 	br lr 
+//
+
+.globl delayCorto
+delayCorto:
+	sub sp, sp, 16
+	str lr, [sp, 8]
+	str x1, [sp, 0]
+	mov x1, DELAYCONSTRAINT
+	lsl x1,x1,#14
+
+delayCortoLoop:
+	sub x1, x1, 1
+	cbnz x1, delayCortoLoop
+
+	ldr lr, [sp, 8]
+	ldr x1, [sp, 0]
+	add sp, sp, 16
+	br lr 
+
 //
 
 .globl delayMedio
@@ -318,115 +336,48 @@ moveSnail:
 
 	br lr
 
-.globl newUFO
-newUFO:
-	sub sp, sp, 8
-	str lr, [sp]
-
-	bl spaceTravel
-
-	ldr lr, [sp]
-	br lr
-
-//
-spaceTravel:
+.globl telon
+telon:
 	sub sp, sp, 32
 	str x22, [sp, 24]
 	str x21, [sp, 16]
 	str x24, [sp, 8]
 	str lr, [sp, 0]
 
-	mov x22, 420
-	mov x23, 390
-	
-	ldr x14, =blackHoleSize
-	ldr w21, [x14]
-	add w21, w21, 10
-	str w21, [x14]
-
-	movz x10, 0xff, lsl 16
-	movk x10, 0xffff, lsl 00
-
-	bl blackHole
-
-	movz x10, 0x44, lsl 16
-	movk x10, 0x11aa, lsl 00
-
-	bl blackHole
 
 	mov x10, 0
-
-	bl blackHole
-
-	ldr x22, [sp, 24]
-	ldr x21, [sp, 16]
-	ldr x24, [sp, 8]
-	ldr lr, [sp, 0]
-	add sp, sp, 32
-
-	br lr
-//
-
-blackHole:
-	sub sp, sp, 32
-	str x22, [sp, 24]
-	str x21, [sp, 16]
-	str x24, [sp, 8]
-	str lr, [sp, 0]
-
-	ldr x14, =blackHoleSize
-	ldr x14, [x14]
-
-	mov x21, 5
-loopBlackHole0:
-	add x21, x21, 1 
-	bl elipse
-	bl delayMedio
-	cmp x21, x14
-	b.lt loopBlackHole0
-
-	cmp x14, 120
-	b.le noEyes
-loopBlackHole1:
-	mov x21, 5
-	mov x10, 0xff
-	add x21, x21, 1 
-	bl circulo
-	bl delayMedio
-	cmp x21, x14
-	b.lt loopBlackHole1	
-noEyes:
-
-	ldr x22, [sp, 24]
-	ldr x21, [sp, 16]
-	ldr x24, [sp, 8]
-	ldr lr, [sp, 0]
-	add sp, sp, 32
-
-	br lr
-
-eyes:
-	sub sp, sp, 32
-	str x22, [sp, 24]
-	str x21, [sp, 16]
-	str x24, [sp, 8]
-	str lr, [sp, 0]
-
-	mov x21, 25
-	mov x22, 420
-	mov x23, 390
-
-	movz x10, 0x44, lsl 16
-	movk x10, 0x11aa, lsl 00
+	mov x16, 0
+	mov x17, 230
+	mov x22, 0
+	mov x23, 0
 	
+	mov x21, 60
+	mov x24, 10
+	mov x4, 0
+
+	mov x3, 0
+
+loopTelon:
+	bl cubica
+	sub x0, xzr, x0
+	asr x0, x0, 12
+	mov x23, x0
+	add x22, x22, x16
+	add x23, x23, x17
+	bl cartesianos
 	bl circulo
-
-	movz x10, 0xff, lsl 16
-	movk x10, 0xffff, lsl 00
-
-	bl circulo
-
-	mov x10, 0
+	bl delayCorto	
+	add x4, x4, 1
+	asr x22, x4, 5
+	cmp x22, x21
+	b.le loopTelon
+	mov x4, x21
+	lsl x4, x4, 5
+	sub x4, xzr, x4
+	sub x24, x24, 1
+	add x16, x16, x21
+	add x16, x16, x21
+	cbnz x24, loopTelon
 
 	ldr x22, [sp, 24]
 	ldr x21, [sp, 16]
@@ -435,4 +386,3 @@ eyes:
 	add sp, sp, 32
 
 	br lr
-

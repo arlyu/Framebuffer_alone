@@ -9,7 +9,7 @@
 
 .globl parabola
 parabola:
-	// Dibuja una parabola en las coordenadas cartesianas evaluando los puntos -50, 50 
+	// Dibuja una parabola en las coordenadas (x22, x23) cartesianas evaluando los puntos -50, 50 
 	// Utiliza x16, x17, x18 y x19
 	// Trabaja con punto punto fijo de DENSITY decimales
 
@@ -18,7 +18,6 @@ parabola:
 	str lr, [sp,16]
 	str x22, [sp,8]
 	str x23, [sp,0]
-	
 
 	mov x18, x22	// Almaceno en x18 el valor "x" del centro
 	mov x19, x23	// Almaceno en x19 el valor "y" del centro
