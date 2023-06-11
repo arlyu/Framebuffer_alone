@@ -168,7 +168,7 @@ fila2trigo:
 	mov x23, 273		// Origen "y" de la cúbica
 
 	mov x21, 25
-	bl caida
+	bl cascada
 //LAGUNA
 	movz x10, 0x01, lsl 16
 	movk x10, 0x5673, lsl 00 	// Elijo color
@@ -187,7 +187,7 @@ rioClaro:
 	mov x23, 272		// Origen "y" de la cúbica
 	
 	mov x21, 20  		// Ancho del rio
-	bl caida
+	bl cascada
 //
 //FLORES: Registro x1 usado como auxiliar
 	

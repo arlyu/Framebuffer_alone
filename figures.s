@@ -19,11 +19,11 @@ parabola:
 	str x22, [sp,8]
 	str x23, [sp,0]
 
-	mov x18, x22	// Almaceno en x18 el valor "x" del centro
-	mov x19, x23	// Almaceno en x19 el valor "y" del centro
+	mov x18, x22			// Almaceno en x18 el valor "x" del centro
+	mov x19, x23			// Almaceno en x19 el valor "y" del centro
 
-	mov x16, 110				// Longitud entera del intervalo de puntos a evaluar
-	lsl x16, x16, DENSITY		// Defino los decimales que tendrá la variable a evaluar
+	mov x16, 110			// Longitud entera del intervalo de puntos a evaluar
+	lsl x16, x16, DENSITY	// Defino los decimales que tendrá la variable a evaluar
 	sub x4, xzr, x16		// x4 <-> Primer valor a evaluar
 
 loopparabola:
@@ -92,15 +92,14 @@ circulo:
 	// Los próximos valores se utilizarán para las comprobaciones del círculo
 	// Se comienza por la esquina inferior izquierda a evaluar si graficar un punto o no
 
-	sub x23, xzr, x21		// Inicializa el valor de la altura máxima
-
+	sub x23, xzr, x21			// Inicializa el valor de la altura de la primer coordenada a evaluar (para el cálculo)
 loopCirculo1:
-	sub x22, xzr, x21			// Inicializa el valor de la anchura máxima
+	sub x22, xzr, x21			// Inicializa el valor "x" de la primer coordenada a evaluar (para el cálculo)
 	add x23, x23, 1
 	cmp x23, x21
 	b.ge endCirculo
 loopCirculo0:
-	cmp x22, x21			// Hasta que x22 sea menor que el máximo ancho posible, itera
+	cmp x22, x21				// Hasta que x22 sea menor que el máximo ancho posible, itera
 	b.gt loopCirculo1		
 	bl errorCirculo				// Calcula el el error que habría al elegir x22 y x23
 	cmp x0, 0					// Si el error es menor que cero, entonces el punto está dentro de la circunferencia y se grafica
@@ -137,7 +136,7 @@ elipse:
 	// Los próximos valores se utilizarán para las comprobaciones del círculo
 	// Se comienza por la esquina inferior izquierda a evaluar si graficar un punto o no
 
-	sub x23, xzr, x21		// Inicializa el valor de la altura máxima
+	sub x23, xzr, x21			// Inicializa el valor de la altura máxima
 
 loopElipse1:
 	sub x22, xzr, x21			// Inicializa el valor de la anchura máxima
@@ -145,7 +144,7 @@ loopElipse1:
 	cmp x23, x21
 	b.ge endElipse
 loopElipse0:
-	cmp x22, x21			// Hasta que x22 sea menor que el máximo ancho posible, itera
+	cmp x22, x21				// Hasta que x22 sea menor que el máximo ancho posible, itera
 	b.gt loopElipse1		
 	bl errorElipse				// Calcula el el error que habría al elegir x22 y x23
 	cmp x0, 0					// Si el error es menor que cero, entonces el punto está dentro de la elipse y se grafica
@@ -302,23 +301,22 @@ drawpixel:
 
 .globl skyFill
 skyFill:
-	//Asume que x0 tiene la coordenada de inciio del framebuffer
+	//Asume que x20 tiene la coordenada de inciio del framebuffer
 	sub sp ,sp ,40
+	str lr ,[sp]				//Link register
+	str x20 ,[sp,8]				//Framebuffer direccion base
+	str x1 ,[sp,16]				//Auxiliar
+	str x2 ,[sp,24]				//Auxiliar
+	str x24 ,[sp,32]			//Hasta donde refillear el cielo (Optimiza el tener que hacer animaciones por encima de cierto obj)
 
-	str lr ,[sp]	//Stack pointer
-	str x0 ,[sp,8]	//Framebuffer direccion base
-	str x1 ,[sp,16]	//Auxiliar
-	str x2 ,[sp,24]	//Auxiliar
-	str x24 ,[sp,32]	//Hasta donde refillear el cielo (Optimiza el tener que hacer animaciones por encima de cierto obj)
-
-	movz x10, 0x00, lsl 16 //Color azul base para el cielo
+	movz x10, 0x00, lsl 16 		//Color azul base para el cielo
 	movk x10, 0x3099, lsl 00
 	movz x1,0,lsl 00
 	movz x2,0,lsl 00
 
 skyFillLoop:
-	str w10,[x0]
-	add x0,x0,#4
+	str w10,[x20]
+	add x20,x20,#4
 	add x1,x1,1
 	cmp x1,SCREEN_WIDTH
 	beq nextSkyLine
@@ -339,10 +337,12 @@ skyLineColorer:
 	b skyFillLoop
 
 endSkyFill:
-	ldr x0 ,[sp,8]	//Framebuffer direccion base
-	ldr x1 ,[sp,16]	//Auxiliar
-	ldr x2 ,[sp,24]	//Auxiliar
-	add sp,sp,24
+	ldr lr, [sp]
+	ldr x20 ,[sp,8]				//Framebuffer direccion base
+	ldr x1 ,[sp,16]				//Auxiliar
+	ldr x2 ,[sp,24]				//Auxiliar
+	ldr x24, [sp,32]
+	add sp,sp,40
 	br lr
 
 
@@ -363,7 +363,7 @@ rio:
 	mov x22, 146	// Origen "x" de la cúbica
 	mov x23, 272	// Origen "y" de la cúbica
 	mov x21, 20  // Ancho del rio
-	bl caida
+	bl cascada
 
 	ldr lr, [sp, 32]
 	ldr x21, [sp, 24]
@@ -383,7 +383,7 @@ filldowncol:
 	str lr ,[sp, 8]
 	str x19 ,[sp,0]
 
-	sub x19, x23, x24		// Calculo la cantidad de veces que iterar hasta la altura x24, requiere precisión para correcto funcionamiento
+	sub x19, x23, x24		// Calculo la cantidad de veces que iterar hasta la altura x24
 
 	bl cartesianos
 loopfill:
@@ -415,14 +415,14 @@ Petalos:
 	add x22,x22,x21
 	add x22,x22,x21
 	bl Rectangle
-	ldr x22,[sp] //restablecer valor de 22
+	ldr x22,[sp]		//restablecer valor de 22
 
 	sub x23,x23,x24
 	bl Rectangle
 	add x23,x23,x24
 	add x23,x23,x24
 	bl Rectangle
-	ldr x23 ,[sp,8] //restablecer valor de 23
+	ldr x23 ,[sp,8]		//restablecer valor de 23
 	ldr lr ,[sp,16]
 	add sp ,sp ,24
 	br lr
@@ -431,18 +431,16 @@ Petalos:
 snailAsset:
 	//El punto origen (x,y) del caracol -> (x22,x23) ,Es la superior mas a la izquierda del caracol
 	sub sp,sp,#48
-	str lr,[sp]		//STACK POINTER
-
-	str x21,[sp,8] 	//ARGUMENTOS DE LA DIMENSINON
+	str lr,[sp]			// Link Register
+	str x21,[sp,8]		// Argumentos de la dimension
 	str x22,[sp,16]
 	str x23,[sp,24]
 	str x24,[sp,32]
 
-	str x10,[sp,40]	//COLOR
+	str x10,[sp,40]		// Color
 
 	movz x24,#10,lsl 0
 	movz x21,#12,lsl 0
-
 
 	//Caparazon
 	//#0x99835c
@@ -496,7 +494,7 @@ snailAsset:
 	movz x10,0x1635	,lsl 00
 	movk x10,0xa6, lsl 16
 
-	ldr x22,[sp,16]//Necesito las coordenadas iniciales
+	ldr x22,[sp,16]		//Necesito las coordenadas iniciales
 	ldr x23,[sp,24]
 
 	add x22,x22,2
@@ -549,15 +547,15 @@ endSnail:
 .globl vallaStatic
 vallaStatic://El punto origen de la valla es el origen del rectangulo de la tabla transversal de arriba
 	sub sp,sp,#56
-	str lr,[sp]		//LINK REGISTER
+	str lr,[sp]			//Link Register
 
-	str x21,[sp,8] 	//ARGUMENTOS DE LA DIMENSINON
+	str x21,[sp,8] 		//Argumentos de la dimension
 	str x22,[sp,16]
 	str x23,[sp,24]
 	str x24,[sp,32]
 
-	str x10,[sp,40]	//COLOR
-	str x1,[sp,48]	//AUXILIAR
+	str x10,[sp,40]		//Color
+	str x1,[sp,48]		//Auxiliar
 
 	//0x814929
 
@@ -604,9 +602,8 @@ endValla:
 .globl cultivoStatic
 cultivoStatic:
 	sub sp,sp,#40
-	str lr,[sp]		//LINK REGISTER
-
-	str x21,[sp,8] 	//ARGUMENTOS DE LA DIMENSINON
+	str lr,[sp]			//Link register
+	str x21,[sp,8] 		//Argumentos de la dimension
 	str x22,[sp,16]
 	str x23,[sp,24]
 	str x24,[sp,32]
@@ -614,20 +611,18 @@ cultivoStatic:
 	movz x10, 0x1c, lsl 16 //Color base del piso
 	movk x10, 0x4d32, lsl 00
 
-	movz x22 ,440 	//x origen
-	movz x23 ,270	//y	origen
-	movz x21 ,198	//ancho
-	movz x24 ,50   //alto
+	movz x22 ,440		//x origen
+	movz x23 ,270		//y	origen
+	movz x21 ,198		//ancho
+	movz x24 ,50		//alto
 
 	bl Rectangle
 
-	ldr lr,[sp]		//LINK REGISTER
-
-	ldr x21,[sp,8] 	//ARGUMENTOS DE LA DIMENSINON
+	ldr lr,[sp]			//LINK REGISTER
+	ldr x21,[sp,8] 		//Argumentos de la dimension
 	ldr x22,[sp,16]
 	ldr x23,[sp,24]
 	ldr x24,[sp,32]
-
 	add sp,sp,#40
 
 	br lr
@@ -635,36 +630,36 @@ cultivoStatic:
 .globl cartelStatic
 cartelStatic:
 	sub sp,sp,#48
-	str lr ,[sp]
-	str x21 ,[sp,8]
-	str x22 ,[sp,16]
-	str x23 ,[sp,24]
-	str x24 ,[sp,32]
-	str x10 ,[sp,40]
+	str lr, [sp]
+	str x21, [sp,8]
+	str x22, [sp,16]
+	str x23, [sp,24]
+	str x24, [sp,32]
+	str x10, [sp,40]
 	
 	movz x10, 0x4a, lsl 16
 	movk x10, 0x3819, lsl 00
 
-	movz x21 ,60	//ancho
-	movz x24 ,30 	//alto
+	movz x21, 60		//ancho
+	movz x24, 30 		//alto
 	bl Rectangle
 
 	//Estaca
-	add x22,x22,25
-	add x23,x23,30
-	movz x21 ,8	
-	movz x24 ,30 
+	add x22, x22, 25
+	add x23, x23, 30
+	movz x21, 8	
+	movz x24, 30 
 
 	bl Rectangle
 
 
-	ldr lr ,[sp]
-	ldr x21 ,[sp,8]
-	ldr x22 ,[sp,16]
-	ldr x23 ,[sp,24]
-	ldr x24 ,[sp,32]
-	ldr x10 ,[sp,40]
-	add sp,sp,#48
+	ldr lr, [sp]
+	ldr x21, [sp,8]
+	ldr x22, [sp,16]
+	ldr x23, [sp,24]
+	ldr x24, [sp,32]
+	ldr x10, [sp,40]
+	add sp, sp, #48
 	br lr
 
 .globl tringulosrep
@@ -672,18 +667,20 @@ tringulosrep:
 // Usa x22 y x23 como coordenadas (x,y) de origen, x21 para el ancho de la base de los triángulos 
 // Como auxiliares: estan x1 que es la cant de trangulos que se van a hacer 
 //x2 que es la distancia entre tringulos
-	sub sp,sp,32
-	str lr ,[sp,24]
+	sub sp, sp, 32
+	str lr, [sp,24]
 tringulosreploop:
-	str x21 ,[sp,16]
-	str x23 ,[sp,8]
-	str x22 ,[sp]
+	str x21, [sp,16]
+	str x23, [sp,8]
+	str x22, [sp]
+	
 	bl triangulo
-	ldr x22 ,[sp] 
-	ldr x23 ,[sp,8] 
-	ldr x21 ,[sp,16]
-	add x22,x22,x2
-	sub x1,x1,1
+	
+	ldr x22, [sp] 
+	ldr x23, [sp,8] 
+	ldr x21, [sp,16]
+	add x22, x22, x2
+	sub x1, x1, 1
 	cbnz x1,tringulosreploop
 	ldr lr ,[sp,24]
 	add sp ,sp ,32
@@ -789,36 +786,6 @@ moonAsset:
 	add sp,sp,32
 	br lr
 
-.globl ufoAsset
-ufoAsset:
-	sub sp,sp,40
-	str lr,[sp]			
-	str x22,[sp,8]			
-	str x23,[sp,16]			
-	str x21,[sp,24]			
-	str x10,[sp,32]			//No perder un color de antes
-
-	movz x10,0xc00 ,lsl 00
-	movk x10,0x80, lsl 16
-	bl elipse
-
-	lsl x21,x21,4
-	sub x23,x23,17
-
-	movz x10,0x00 ,lsl 00
-	movk x10,0x00, lsl 16
-
-	bl elipse
-
-	ldr lr,[sp]				
-	ldr x22,[sp,8]			
-	ldr x23,[sp,16]			
-	ldr x21,[sp,24]			//TAMAÑO DEL UFO
-	ldr x10,[sp,32]			//No perder un color de antes
-	add sp,sp,40
-
-	br lr
-
 //---------------Formas geometricas
 
 .globl LineH
@@ -832,11 +799,11 @@ LineH:
 	str lr ,[sp, 8]
 	str x21 ,[sp,0]
 
-	mov x16, 4			// Valor por defecto para sumar a x0
+	mov x16, 4				// Valor por defecto para sumar a x0
 	bl cartesianos
 	and x3, x3, 0b01
-	cbz x3, loopLineH	// Si el bit está activo, saltea la resta
-	sub x16, xzr, x16	// En caso contrario, invierte "la dirección"
+	cbz x3, loopLineH		// Si el bit está activo, saltea la resta
+	sub x16, xzr, x16		// En caso contrario, invierte "la dirección"
 
 loopLineH:
 	add x0, x0, x16
@@ -877,11 +844,10 @@ loopLineD:
 
 .globl Line
 Line:
-	//Dibuja una linea desde la coordenada (x22,x23) que mida ancho x21
+	//Dibuja, desde la coordenada (x22,x23), una linea de ancho x21
 	//										(x , y)
-	//Usando el color guardado en x10
-
-	//Usa los registros x1,x2
+	//Usa el color guardado en x10
+	//Usa los registros x1,x2 (los guarda)
 
 	sub sp,sp,48 //reservando para salvar los regs que vamos a usar
 	str x21 ,[sp,40]
@@ -944,7 +910,7 @@ endRectangle:
 .globl triangulo
 triangulo:  
 //Usa x22 y x23 como coordenadas (x,y), por otra parte el x21 determina el ancho de la base (tamaño). 
-//El x21 solo pueden ser números impares.
+//El x21 solo pueden ser números impares para que sea prolijo el triángulo.
 	sub sp ,sp ,8
 	str lr ,[sp]
 	add x22,x22,1
@@ -961,7 +927,7 @@ triangulo:
 .globl trianguloinvert
 trianguloinvert:  
 //Usa x22 y x23 como coordenadas (x,y), por otra parte el x21 determina el ancho de la base (tamaño). 
-//El x21 solo pueden ser números impares.
+//El x21 solo pueden ser números impares para que sea prolijo el triángulo.
 	sub sp ,sp ,8
 	str lr ,[sp]
 	add x22,x22,1
@@ -976,7 +942,7 @@ trianguloinvert:
 	br lr
 
 .globl elipseCreciente
-// Dibuja una elipse creciente con centro en las coordenadas cartesianas (x22, x23)
+// Dibuja una elipse creciente hasta tamaño 70, con centro en las coordenadas cartesianas (x22, x23)
 elipseCreciente:
 	sub sp, sp, 40
 	str lr, [sp, 32]
