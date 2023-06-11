@@ -10,24 +10,24 @@
 .globl main
 main:
 	// x0 contiene la direccion base del framebuffer
-	mov x20, x0 // Guarda la dirección base del framebuffer en x20
+	mov x20, x0				// Guarda la dirección base del framebuffer en x20
 	mov x26, GPIO_BASE	
 
 .globl init
 init:
-	bl initArrays		// Inicializa los arreglos que guaradan datos sobre las animaciones
-	movz x24,270 //Llenar el cielo exctamente hasta donde empieza el suelo
+	bl initArrays			// Inicializa los arreglos que guaradan datos sobre las animaciones
+	movz x24,270 			//Llenar el cielo exctamente hasta donde empieza el suelo
 	bl skyFill
 
 // Introduccion
 
 //ESTRELLAS
-	movz x10, 0xFF, lsl 16 //Color blanco
+	movz x10, 0xFF, lsl 16 		//Color blanco
 	movk x10, 0xFFFF, lsl 00 
 
-	mov x1,48   //Cantidad de esterellas
-	mov x22,2  //x origen
-	mov x23,0  //y origen
+	mov x1,48   		//Cantidad de esterellas
+	mov x22,2  			//x origen
+	mov x23,0  			//y origen
 	add x0,x0,1
 
 loopEstrellas:
@@ -38,30 +38,30 @@ loopEstrellas:
 	cbnz x1,loopEstrellas
 
 //SUELO
-	movz x10, 0x09, lsl 16 //Color base del piso
+	movz x10, 0x09, lsl 16	//Color base del piso
 	movk x10, 0x5516, lsl 00
 
-	movz x22 ,0 	//x origen
-	movz x23 ,270	//y	origen
-	movz x21 ,640	//ancho
-	movz x24 ,220   //alto
+	movz x22 ,0				//x origen
+	movz x23 ,270			//y	origen
+	movz x21 ,640			//ancho
+	movz x24 ,220   		//alto
 	bl Rectangle
 //
 //Cultivo tras la valla
 	bl cultivoStatic
 //	
 //Valla del fondo 
-	mov x22,438  //Donde arranca la valla
-	mov x23,310 //Donde arranca la valla
+	mov x22,438 			//Donde arranca la valla
+	mov x23,310 			//Donde arranca la valla
  	bl vallaStatic
 
 	movz x10, 0x7A, lsl 16
 	movk x10, 0x3F1F, lsl 00
-	mov x2,20      //Espacio entre triangulos
-	mov x1 ,10   //cant de veces a repetir
-	mov x22,436 	//x origen
-	mov x23,310	//y	origen
-	mov x21,9	//ancho
+	mov x2,20      			//Espacio entre triangulos
+	mov x1 ,10   			//cant de veces a repetir
+	mov x22,436 			//x origen
+	mov x23,310				//y	origen
+	mov x21,9				//ancho
 	bl tringulosrep
 
 //
@@ -87,13 +87,13 @@ fila2trigo:
 	
 //
 //Cartel
-    mov x22,310  //Posicion del cartel (x)
-	mov x23,340  //Posicion del cartel (y)
+    mov x22,310  			//Posicion del cartel (x)
+	mov x23,340  			//Posicion del cartel (y)
 	bl cartelStatic
 	movz x10, 0x00, lsl 16
 	movk x10, 0x0000, lsl 00
-	mov x22,320  //x
-	mov x23,350  //y
+	mov x22,320  			//x
+	mov x23,350  			//y
 	mov x21,40
 	bl Line
 	mov x22,325 
@@ -104,16 +104,16 @@ fila2trigo:
 //TRONCOS DE ARBOLES
 	movz x10, 0x81, lsl 16
 	movk x10, 0x4929, lsl 00
-	mov x22,285   //x //Arbol de la izquierda
-	mov x23,250  //y
-	mov x21,10	//ancho
-	mov x24,40 	//alto
+	mov x22,285			//x . Arbol de la izquierda
+	mov x23,250			//y
+	mov x21,10			//ancho
+	mov x24,40			//alto
 	bl Rectangle
-	mov x22,410  // Arbol de la derecha
+	mov x22,410  		// Arbol de la derecha
 	bl Rectangle
 	movz x10, 0x4a, lsl 16
 	movk x10, 0x3819, lsl 00
-	mov x22,347  // Arbol centro
+	mov x22,347			// Arbol centro
 	bl Rectangle
 
 //COPA DE ARBOLES
@@ -139,33 +139,33 @@ fila2trigo:
 	movz x10, 0x4a, lsl 16
 	movk x10, 0x3819, lsl 00 	// Elijo color
 
-	mov x22, 115	// Origen "x" de la parábola
-	mov x23, 390	// Origen "y" de la parábola
+	mov x22, 115		// Origen "x" de la parábola
+	mov x23, 390		// Origen "y" de la parábola
 	bl parabola
 //
 //PASTO DECO 
 	movz x10, 0x09, lsl 16 //Color un poco más oscuro de la base del piso
 	movk x10, 0x5316, lsl 00
 
-	mov x2,8      //Espacio entre triangulos
-	mov x1 ,28   //cant de veces a repetir
-	mov x22,0 	//x origen
-	mov x23,286	//y	origen
-	mov x21,15	//ancho
+	mov x2,8			//Espacio entre triangulos
+	mov x1 ,28			//cant de veces a repetir
+	mov x22,0			//x origen
+	mov x23,286			//y	origen
+	mov x21,15			//ancho
 	bl tringulosrep
-	mov x1 ,18    	//cant de veces a repetir
-	mov x22,272 	//x origen
-	mov x23,296	    //y	origen
-	mov x21,13		//ancho
+	mov x1 ,18    		//cant de veces a repetir
+	mov x22,272 		//x origen
+	mov x23,296	    	//y	origen
+	mov x21,13			//ancho
 	bl tringulosrep
 //
 //BORDE DEL RIO
-	mov x3, 0b00	// Seteo la flag de delay
-	mov x24, 200	// Altura hasta la que se grafica
+	mov x3, 0b00		// Seteo la flag de delay
+	mov x24, 200		// Altura hasta la que se grafica
 	movz x10, 0x2a, lsl 16
 	movk x10, 0x2809, lsl 00 	// Elijo color	
-	mov x22, 142	// Origen "x" de la cúbica
-	mov x23, 273	// Origen "y" de la cúbica
+	mov x22, 142		// Origen "x" de la cúbica
+	mov x23, 273		// Origen "y" de la cúbica
 
 	mov x21, 25
 	bl caida
@@ -179,23 +179,23 @@ fila2trigo:
 //
 //RIO DE LA MONTAÑA
 rioClaro:
-	mov x3, 0b00	// Seteo la flag de delay
-	mov x24, 40		// Altura hasta la que se grafica
+	mov x3, 0b00		// Seteo la flag de delay
+	mov x24, 40			// Altura hasta la que se grafica
 	movz x10, 0x11, lsl 16
 	movk x10, 0x6673, lsl 00 	// Elijo color
-	mov x22, 146	// Origen "x" de la cúbica
-	mov x23, 272	// Origen "y" de la cúbica
+	mov x22, 146		// Origen "x" de la cúbica
+	mov x23, 272		// Origen "y" de la cúbica
 	
-	mov x21, 20  // Ancho del rio
+	mov x21, 20  		// Ancho del rio
 	bl caida
 //
 //FLORES: Registro x1 usado como auxiliar
 	
-    mov x22, 370 //x inicial
-    mov x23, 380 //y
-    mov x21, 7 //ancho
-    mov x24, 7  //alto
-	mov x1, 0  // Auxiliar para el loop
+    mov x22, 370		//x inicial
+    mov x23, 380		//y
+    mov x21, 7			//ancho
+    mov x24, 7			//alto
+	mov x1, 0			// Auxiliar para el loop
 
 loopvioleta:  
 	add x22,x22,40
@@ -234,25 +234,25 @@ loopamarilla:
 //Manzana 
 	movz x10, 0x19, lsl 16     
     movk x10, 0xff0C, lsl 00  
-	mov x22, 270  //x
-	mov x23, 250  //y
+	mov x22, 270  	//x
+	mov x23, 250  	//y
 
 	bl manzana
 	
-	mov x22, 300  //x
+	mov x22, 300  	//x
 	bl manzana
 
-	mov x22, 400  //x
+	mov x22, 400  	//x
 	bl manzana
 
-	mov x22, 420  //x
-	mov x23, 250  //y
+	mov x22, 420  	//x
+	mov x23, 250  	//y
 	bl manzana
 
 	movz x10, 0xFA, lsl 16  
     movk x10, 0xF32B, lsl 00  
-	mov x22, 440  //x
-	mov x23, 250  //y
+	mov x22, 440  	//x
+	mov x23, 250  	//y
 	bl manzana
 
 //Caracoles
