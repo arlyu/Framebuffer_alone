@@ -16,7 +16,7 @@ clean:
 	rm -f *.o memory_map.txt kernel8.list kernel8.img kernel8.elf
 
 kernel8.img: memmap $(ASM_OBJS)
-	$(ARMGNU)-ld $(ASM_OBJS) -T memmap -o kernel8.elf -M > memory_map.txt
+	$(ARMGNU)-ld $(ASM_OBJS) -g -T memmap -o kernel8.elf -M > memory_map.txt
 	$(ARMGNU)-objdump -D kernel8.elf > kernel8.list
 	$(ARMGNU)-objcopy kernel8.elf -O binary kernel8.img
 

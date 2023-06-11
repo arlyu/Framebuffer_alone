@@ -1,9 +1,11 @@
 .data
 	snailAnimNeeds: .dword 30, 450
+	moonAnimNeeds: .dword 130,345,32,0, 0
+	appleAnimNeeds: .word 0x010000,0x000100,0x0FF000, 0
+	
 	.equ DENSITY, 5
 	.equ GPIO_GPLEV0,  0x34
 	.equ DELAYCONSTRAINT, 0x9
-	moonAnimNeeds: .dword 130,345,32,0
 
 //DelayLoop
 .globl delay
@@ -65,9 +67,22 @@ initArrays:
 	str x11, [x9, 8]
 	mov x11, 32
 	str x11, [x9, 16]
-	movz x11, 0, lsl 00
+	mov x11, 0
 	str x11, [x9, 24]
+	mov x11, 0
+	str x11, [x9, 32]
 
+	// Inicializo los valores para las manzanas
+	ldr x9, =appleAnimNeeds
+	movz x11, 0x01, lsl 16
+	str w11, [x9]				// Almaceno la porción de rojo
+	movz x11, 0x0100, lsl 00	
+	str w11, [x9, 4]			// Almaceno la porción de verde
+	mov x11, 0xff
+	lsl x11, x11, 12
+	str w11, [x9, 8]			// Almaceno el color inicial
+	mov x11, 0
+	str w11, [x9, 12]			// Almaceno el contador de llamadas inicial
 
 	ldr lr, [sp]
 	add sp, sp, 8
@@ -119,6 +134,12 @@ moonAnim:
 	str x28,[sp,24]
 
 	ldr x19, =moonAnimNeeds
+	ldr x27, [x19, 32]		//Cargo el contador de llamadas
+	cmp x27, 1				//Verifico si se llamó alguna vez
+	b.ge moonAnimEnd		//Si ya fue llamada, no vuelve a dibujar la luna
+	add x27, x27, 1
+	str x27, [x19, 32]		//Actualiza el valor del contador
+
 	ldr x27,[x19,0]
 	ldr x28,[x19,8]
 
@@ -394,4 +415,58 @@ loopTelon:
 	ldr lr, [sp, 0]
 	add sp, sp, 32
 
+	br lr
+
+.globl frutas
+//Cambia progresivamente el color de las manzanas de verde a rojo
+//El cambio ocurre con los valores que se pasan en appleAnimNeeds
+//Usa x15 como auxiliar 
+frutas:
+	sub sp, sp, 16
+	str lr, [sp,8]
+
+	ldr x15, =appleAnimNeeds  	//En x15 está la dirección base del arreglo que tiene los datos que necesito
+	ldr w10, [x15, 12]	//Traigo la cantidad de veces que se cambió el color
+	cmp w10, 0xf0
+	b.ge skipRecolor
+	add x10, x10, 1		//Incremento el contador
+	str w10, [x15, 12]	//Almaceno la cuenta
+
+	ldr w10,[x15,8]		//Traigo el color inicial
+	str w10, [sp,0] 	//Guardo el color del que voy a pintar las manznas en esta iteración
+						//Esto se hace porque la función de manzana puede tomar cualquier color
+	ldr x8,[x15,4] 		//Traigo el segundo valor del array (verde)
+	ldr x7,[x15,0] 		//Traigo el primer valor del array (rojo)
+
+	sub x10,x10,x8 		//Decremento de gradualmente el color verde
+	add x10,x10,x7 		//Incremento de gradualmente el color rojo
+	str w10,[x15,8]
+
+	mov x22, 270  		// Copio las coordenadas x,y de una manzana de la imagen estática
+	mov x23, 250  
+	bl manzana			//la vuelvo a dibujar con el color que quiero
+
+	bl delay			//Entre cada manzana agrego un delay para que la animación sea más continua
+
+	ldr w10,[sp] 		//En cada nuevo redibujo de las manzanas necesito el color que corresponde a la iteración
+	mov x22, 300  
+	bl manzana
+
+	bl delay
+
+	ldr w10,[sp]
+	mov x22, 400  
+	bl manzana
+
+	bl delay
+
+	ldr w10,[sp]
+	mov x22, 420  //x
+	mov x23, 250  //y
+	bl manzana
+
+skipRecolor:
+
+	ldr lr, [sp,8]
+	add sp, sp, 16
 	br lr

@@ -15,7 +15,7 @@ main:
 
 .globl init
 init:
-	bl initArrays
+	bl initArrays		// Inicializa los arreglos que guaradan datos sobre las animaciones
 	movz x24,270 //Llenar el cielo exctamente hasta donde empieza el suelo
 	bl skyFill
 
@@ -232,11 +232,10 @@ loopamarilla:
     blt loopamarilla 
 
 //Manzana 
-	movz x10, 0xB0, lsl 16
-    movk x10, 0x1515, lsl 00  
+	movz x10, 0x19, lsl 16     
+    movk x10, 0xff0C, lsl 00  
 	mov x22, 270  //x
 	mov x23, 250  //y
-
 
 	bl manzana
 	
@@ -246,12 +245,9 @@ loopamarilla:
 	mov x22, 400  //x
 	bl manzana
 
-	movz x10, 0xB0, lsl 16
-    movk x10, 0x1515, lsl 00  
 	mov x22, 420  //x
 	mov x23, 250  //y
 	bl manzana
-
 
 	movz x10, 0xFA, lsl 16  
     movk x10, 0xF32B, lsl 00  
@@ -320,6 +316,7 @@ skipw:
 	// Tecla a
 	and w11, w13, 0b00000100
 	cbz w11, skipa
+	bl frutas
 skipa:
 
 	// Tecla s

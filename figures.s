@@ -691,7 +691,8 @@ tringulosreploop:
 //
 .globl manzana
 manzana:
-	sub sp,sp,8
+	sub sp,sp,16
+	str x10, [sp, 8]
 	str lr ,[sp]
 	mov x21, 10
 	bl circulo
@@ -728,8 +729,9 @@ manzana:
 	add x23,x23,8
 	bl elipse
 
+	ldr x10, [sp, 8]
 	ldr lr ,[sp]
-	add sp ,sp ,8
+	add sp ,sp ,16
 
 	br lr
 //
